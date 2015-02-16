@@ -1,10 +1,12 @@
 package net.malisis.advert;
 
+import net.malisis.advert.advert.AdvertManager;
 import net.malisis.advert.block.WallPanel;
 import net.malisis.core.IMalisisMod;
 import net.malisis.core.MalisisCore;
 import net.malisis.core.configuration.Settings;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraftforge.client.ClientCommandHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
@@ -26,6 +28,7 @@ public class MalisisAdvert implements IMalisisMod
 	{
 		instance = this;
 		MalisisCore.registerMod(this);
+		AdvertManager.instance.readAdvertFolder();
 	}
 
 	//#region IMalisisMod
@@ -68,7 +71,7 @@ public class MalisisAdvert implements IMalisisMod
 	@EventHandler
 	public void init(FMLInitializationEvent event)
 	{
-
+		ClientCommandHandler.instance.registerCommand(new MalisisAdvertCommand());
 	}
 
 	public static class Blocks
