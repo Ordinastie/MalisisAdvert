@@ -1,5 +1,6 @@
 package net.malisis.advert;
 
+import net.malisis.advert.block.WallPanel;
 import net.malisis.core.IMalisisMod;
 import net.malisis.core.MalisisCore;
 import net.malisis.core.configuration.Settings;
@@ -8,6 +9,7 @@ import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.relauncher.Side;
 
 @Mod(modid = MalisisAdvert.modid, name = MalisisAdvert.modname, version = MalisisAdvert.version)
 public class MalisisAdvert implements IMalisisMod
@@ -26,6 +28,7 @@ public class MalisisAdvert implements IMalisisMod
 		MalisisCore.registerMod(this);
 	}
 
+	//#region IMalisisMod
 	@Override
 	public String getModId()
 	{
@@ -50,25 +53,27 @@ public class MalisisAdvert implements IMalisisMod
 		return null;
 	}
 
+	//#end IMalisisMod
+
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event)
 	{
-		//		settings = new MalisisAdvertSettings(event.getSuggestedConfigurationFile());
-		//
-		//		Registers.init();
-		//
-		//		proxy.initRenderers();
+		Registers.init();
+		if (event.getSide() == Side.CLIENT)
+		{
+			Registers.initRenderers();
+		}
 	}
 
 	@EventHandler
 	public void init(FMLInitializationEvent event)
 	{
-		//NetworkHandler.init(modid);
+
 	}
 
 	public static class Blocks
 	{
-
+		public static WallPanel wallPanel;
 	}
 
 	public static class Items
