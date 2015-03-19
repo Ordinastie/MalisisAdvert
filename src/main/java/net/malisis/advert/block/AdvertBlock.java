@@ -24,21 +24,25 @@
 
 package net.malisis.advert.block;
 
+import net.malisis.advert.AdvertModel;
 import net.malisis.advert.MalisisAdvert;
+import net.malisis.advert.gui.advertselection.AdvertSelectionGui;
 import net.malisis.advert.tileentity.AdvertTileEntity;
 import net.malisis.core.block.BoundingBoxType;
 import net.malisis.core.block.MalisisBlock;
-import net.malisis.core.renderer.icon.ClippedIcon;
-import net.malisis.core.renderer.icon.MalisisIcon;
+import net.malisis.core.util.AABBUtils;
 import net.malisis.core.util.EntityUtils;
+import net.malisis.core.util.TileEntityUtils;
+import net.malisis.core.util.chunkcollision.IChunkCollidable;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
-import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -47,7 +51,7 @@ import net.minecraftforge.common.util.ForgeDirection;
  * @author Ordinastie
  *
  */
-public class WallPanel extends MalisisBlock implements ITileEntityProvider
+public class AdvertBlock extends MalisisBlock implements ITileEntityProvider, IChunkCollidable
 {
 	public static int renderId = -1;
 
@@ -55,78 +59,106 @@ public class WallPanel extends MalisisBlock implements ITileEntityProvider
 	public static final int DIR_SOUTH = 1;
 	public static final int DIR_WEST = 2;
 	public static final int DIR_EAST = 3;
-	public static final int HAS_FOOT = 1 << 3;
 
-	public WallPanel()
+	private IIcon panelIcon;
+
+	public AdvertBlock()
 	{
 		super(Material.iron);
 		setResistance(6000);
 		setHardness(6000);
-		setBlockName("wallpanel");
+		setBlockName("advertBlock");
 		setCreativeTab(MalisisAdvert.tab);
 	}
 
 	@Override
 	public void registerBlockIcons(IIconRegister register)
 	{
-		MalisisIcon icon = new MalisisIcon("malisisadvert:wallpanel");
-		icon.register((TextureMap) register);
-		blockIcon = new ClippedIcon(icon, 0, 0, 2F / 3F, 1);
+		blockIcon = register.registerIcon("malisisadvert:MA");
+		panelIcon = register.registerIcon("malisisadvert:panel");
+	}
+
+	public IIcon getPanelIcon()
+	{
+		return panelIcon;
 	}
 
 	@Override
 	public int onBlockPlaced(World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ, int metadata)
 	{
-		if (side == 1)
-			return HAS_FOOT;
-		else
-			return (ForgeDirection.getOrientation(side).getOpposite().ordinal() - 2);
+		return side;
 	}
 
 	@Override
 	public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase player, ItemStack itemStack)
 	{
-		if (!hasFoot(world.getBlockMetadata(x, y, z)))
+		AdvertTileEntity te = TileEntityUtils.getTileEntity(AdvertTileEntity.class, world, x, y, z);
+		if (te == null)
 			return;
 
-		ForgeDirection dir = EntityUtils.getEntityFacing(player);
-		world.setBlockMetadataWithNotify(x, y, z, dir.ordinal() - 2 | HAS_FOOT, 2);
+		int metadata = world.getBlockMetadata(x, y, z);
+		if (metadata == 1)
+		{
+			te.setModel(AdvertModel.PANEL_SMALL_FOOT);
+			ForgeDirection dir = EntityUtils.getEntityFacing(player);
+			world.setBlockMetadataWithNotify(x, y, z, dir.ordinal() - 2, 3);
+		}
+		else
+		{
+			te.setWallMounted(true);
+			te.setModel(AdvertModel.PANEL_WALL);
+			world.setBlockMetadataWithNotify(x, y, z, ForgeDirection.getOrientation(metadata).getOpposite().ordinal() - 2, 3);
+		}
+
+	}
+
+	@Override
+	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ)
+	{
+		if (!world.isRemote)
+			return true;
+
+		AdvertTileEntity te = TileEntityUtils.getTileEntity(AdvertTileEntity.class, world, x, y, z);
+		if (te == null)
+			return true;
+
+		new AdvertSelectionGui(te).display();
+
+		return true;
 	}
 
 	@Override
 	public AxisAlignedBB[] getBoundingBox(IBlockAccess world, int x, int y, int z, BoundingBoxType type)
 	{
+		int[] dirs = { 2, 0, 1, 3 };
 		float w = .1875F;
-		int metadata = world.getBlockMetadata(x, y, z);
-		if (hasFoot(metadata))
-			return new AxisAlignedBB[] { AxisAlignedBB.getBoundingBox(0.5F - w / 2, 0, 0.5F - w / 2, 0.5F + w / 2, 1, 0.5F + w / 2) };
+		AdvertTileEntity te = TileEntityUtils.getTileEntity(AdvertTileEntity.class, world, x, y, z);
+		if (te == null)
+			return new AxisAlignedBB[] { AxisAlignedBB.getBoundingBox(0, 0, 0, 1, 1, 1) };
 
-		AxisAlignedBB aabb = AxisAlignedBB.getBoundingBox(-.5F, 0, -0.5F, 1.5F, 3, 1.5F);
-		switch (metadata & 3)
+		AxisAlignedBB foot = AxisAlignedBB.getBoundingBox(0.375F, 0, 0.5F - w, 0.625F, 1, 0.5F);
+		AxisAlignedBB panel = AxisAlignedBB.getBoundingBox(-0.5F, 0, 0.5F - w, 1.5F, 3, 0.5F);
+
+		if (te.getModel() == AdvertModel.PANEL_WALL)
+			panel.offset(0, 0, 0.5F);
+
+		if (te.getModel() == AdvertModel.PANEL_FULL_FOOT)
+			panel.maxY++;
+
+		AxisAlignedBB[] aabbs;
+		if (te.getModel() == AdvertModel.PANEL_SMALL_FOOT)
 		{
-			case WallPanel.DIR_SOUTH:
-				aabb.minZ = 1 - w;
-				aabb.maxZ = 1;
-				break;
-			case WallPanel.DIR_EAST:
-				aabb.minX = 1 - w;
-				aabb.maxX = 1;
-				break;
-			case WallPanel.DIR_WEST:
-				aabb.minX = 0;
-				aabb.maxX = w;
-				break;
-			case WallPanel.DIR_NORTH:
-				aabb.minZ = 0;
-				aabb.maxZ = w;
-				break;
+			panel.offset(0, 1, 0);
+			aabbs = new AxisAlignedBB[] { foot, panel };
 		}
+		else
+			aabbs = new AxisAlignedBB[] { panel };
 
-		return new AxisAlignedBB[] { aabb };
+		return AABBUtils.rotate(aabbs, dirs[te.getBlockMetadata()]);
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(World p_149915_1_, int p_149915_2_)
+	public TileEntity createNewTileEntity(World world, int metadata)
 	{
 		return new AdvertTileEntity();
 	}
@@ -147,10 +179,5 @@ public class WallPanel extends MalisisBlock implements ITileEntityProvider
 	public int getRenderType()
 	{
 		return renderId;
-	}
-
-	public static boolean hasFoot(int metadata)
-	{
-		return (metadata & HAS_FOOT) != 0;
 	}
 }

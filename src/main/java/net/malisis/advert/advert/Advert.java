@@ -24,98 +24,99 @@
 
 package net.malisis.advert.advert;
 
-import java.net.URL;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
-
-import com.google.common.base.Charsets;
-import com.google.common.io.Resources;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.ListeningExecutorService;
-import com.google.common.util.concurrent.MoreExecutors;
-
 /**
  * @author Ordinastie
  *
  */
-public class Advert implements Comparable<Advert>
+public abstract class Advert implements Comparable<Advert>
 {
-	private static ListeningExecutorService threadPool = MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor());
+	protected int id;
+	protected String name;
+	protected long size;
+	protected int width;
+	protected int height;
+	protected String url;
+	private String error;
 
-	private String name;
-	private String url;
-	private String fileName;
-
-	public Advert(String name, String url)
+	public Advert(int id, String name, String url)
 	{
+		this.id = id;
 		this.name = name;
 		this.url = url;
 	}
 
 	//#region Getters/Setters
-	/**
-	 * @return the name
-	 */
+	public int getId()
+	{
+		return id;
+	}
+
 	public String getName()
 	{
 		return name;
 	}
 
-	/**
-	 * @param name the name to set
-	 */
 	public void setName(String name)
 	{
 		this.name = name;
 	}
 
-	/**
-	 * @return the url
-	 */
 	public String getUrl()
 	{
 		return url;
 	}
 
-	/**
-	 * @param url the url to set
-	 */
 	public void setUrl(String url)
 	{
 		this.url = url;
 	}
 
-	/**
-	 * @return the fileName
-	 */
-	public String getFileName()
+	public long getSize()
 	{
-		return fileName;
+		return size;
+	}
+
+	public int getWidth()
+	{
+		return width;
+	}
+
+	public int getHeight()
+	{
+		return height;
+	}
+
+	public void setError(String error)
+	{
+		this.error = error;
+	}
+
+	public String getError()
+	{
+		return error;
 	}
 
 	//#end Getters/Setters
 
-	public boolean isDownloaded()
+	public void setInfos(String name, String url)
 	{
-		return true;
+		this.name = name;
+		this.url = url;
+		this.error = null;
 	}
 
-	public void download()
+	public void setData(long size, int width, int height)
 	{
-
+		this.size = size;
+		this.width = width;
+		this.height = height;
 	}
 
-	private static ListenableFuture<String> downloadURL(final URL url)
-	{
-		return threadPool.submit(new Callable<String>()
-		{
-			@Override
-			public String call() throws Exception
-			{
-				return Resources.toString(url, Charsets.UTF_8);
-			}
-		});
-	}
+	public void save()
+	{}
+
+	public void delete()
+	{}
 
 	@Override
 	public int compareTo(Advert o)
@@ -123,11 +124,22 @@ public class Advert implements Comparable<Advert>
 		return name.compareTo(o.name);
 	}
 
-	public static Advert fromListing(String line)
+	@Override
+	public boolean equals(Object obj)
 	{
-		String[] parts = line.split(";");
-		if (parts.length != 2)
-			return null;
-		return new Advert(parts[0], parts[1]);
+		return obj instanceof Advert && ((Advert) obj).id == id;
+	}
+
+	@Override
+	public String toString()
+	{
+		String str = "";
+		if (this instanceof ClientAdvert)
+			str += "[C]";
+		else if (this instanceof ServerAdvert)
+			str += "[S]";
+		str += " (" + id + ") " + name + " - " + url;
+
+		return str;
 	}
 }

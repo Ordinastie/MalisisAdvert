@@ -22,32 +22,23 @@
  * THE SOFTWARE.
  */
 
-package net.malisis.advert.packet;
+package net.malisis.advert;
 
-import net.malisis.core.MalisisCore;
-import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
-import cpw.mods.fml.relauncher.Side;
+import net.malisis.advert.advert.AdvertSelection;
 
 /**
- * Global handler for {@link MalisisCore} messages.
- *
  * @author Ordinastie
  *
  */
-public class NetworkHandler
+public interface IAdvertSelector
 {
-	public static int DOWNLOADADVERT = 1;
-	public static SimpleNetworkWrapper network;
+	public int availableSlots();
 
-	/**
-	 * Initializes the handle. Creates the network wrapper and registers the different handlers.
-	 *
-	 * @param channelName the channel name
-	 */
-	public static void init(String channelName)
-	{
-		network = new SimpleNetworkWrapper(channelName);
+	public int selectedAdverts();
 
-		network.registerMessage(DownloadAdvertMessage.class, DownloadAdvertMessage.Packet.class, DOWNLOADADVERT, Side.SERVER);
-	}
+	public AdvertSelection getCurrentSelection();
+
+	public void addSelection(int index, AdvertSelection advert);
+
+	public void removeSelection(int index);
 }

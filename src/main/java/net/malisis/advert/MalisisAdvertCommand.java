@@ -28,7 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import net.malisis.advert.gui.AdvertManagerGui;
+import net.malisis.advert.gui.manager.AdvertManagerGui;
 import net.malisis.core.MalisisCore;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
@@ -50,7 +50,7 @@ public class MalisisAdvertCommand extends CommandBase
 	 */
 	public MalisisAdvertCommand()
 	{
-
+		//parameters.add("delete");
 	}
 
 	/**
@@ -94,10 +94,10 @@ public class MalisisAdvertCommand extends CommandBase
 		if (!parameters.contains(params[0]))
 			throw new WrongUsageException("malisisadvert.commands.usage", new Object[0]);
 
-		switch (params[0])
-		{
-
-		}
+		//		switch (params[0])
+		//		{
+		//				break;
+		//		}
 
 	}
 
@@ -110,8 +110,8 @@ public class MalisisAdvertCommand extends CommandBase
 	@Override
 	public List addTabCompletionOptions(ICommandSender icommandsender, String[] params)
 	{
-		//		if (params.length == 1)
-		//			return getListOfStringsFromIterableMatchingLastWord(params, parameters);
+		if (params.length == 1)
+			return getListOfStringsFromIterableMatchingLastWord(params, parameters);
 		//		else if (params.length == 2)
 		//			return getListOfStringsFromIterableMatchingLastWord(params, MalisisCore.listModId());
 		//		else

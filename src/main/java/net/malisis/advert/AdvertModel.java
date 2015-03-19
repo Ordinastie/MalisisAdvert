@@ -22,63 +22,39 @@
  * THE SOFTWARE.
  */
 
-package net.malisis.advert.advert;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.SortedSet;
-import java.util.TreeSet;
+package net.malisis.advert;
 
 /**
  * @author Ordinastie
  *
  */
-public enum AdvertManager implements Iterable<Advert>
+public enum AdvertModel
 {
-	instance;
+	PANEL_WALL(2, 3, true), PANEL_SMALL_FOOT(2, 3, false), PANEL_FULL_FOOT(2, 3, false)/*, BILLBOARD(5, 3, true)*/;
 
-	private static String ADVERTDIR = "adverts/";
-	private static String LISTINGNAME = "listing.txt";
+	private int width;
+	private int height;
+	private boolean wallMounted;
 
-	private File listing;
-	private SortedSet<Advert> adverts = new TreeSet<>();
-
-	public void readAdvertFolder()
+	private AdvertModel(int width, int height, boolean wallMounted)
 	{
-		File packDir = new File("./" + ADVERTDIR);
-		if (!packDir.exists())
-			packDir.mkdir();
-
-		listing = new File(packDir, LISTINGNAME);
-
-		readAdvertListing();
+		this.width = width;
+		this.height = height;
+		this.wallMounted = wallMounted;
 	}
 
-	@Override
-	public Iterator<Advert> iterator()
+	public int getWidth()
 	{
-		return adverts.iterator();
+		return width;
 	}
 
-	private void readAdvertListing()
+	public int getHeight()
 	{
-		try (BufferedReader br = new BufferedReader(new FileReader(listing)))
-		{
-			for (String line; (line = br.readLine()) != null;)
-			{
-				Advert ad = Advert.fromListing(line);
-				if (ad != null)
-					adverts.add(ad);
-			}
-
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
+		return height;
 	}
 
+	public boolean isWallMounted()
+	{
+		return wallMounted;
+	}
 }

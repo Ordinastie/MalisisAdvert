@@ -22,11 +22,13 @@
  * THE SOFTWARE.
  */
 
-package net.malisis.advert.packet;
+package net.malisis.advert.network;
 
 import io.netty.buffer.ByteBuf;
-import net.malisis.core.inventory.MalisisInventory;
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.malisis.advert.MalisisAdvert;
+import net.malisis.advert.advert.Advert;
+import net.malisis.advert.advert.ServerAdvert;
+import net.malisis.advert.network.AdvertSaveMessage.SavePacket;
 import cpw.mods.fml.common.network.ByteBufUtils;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
@@ -34,62 +36,70 @@ import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import cpw.mods.fml.relauncher.Side;
 
 /**
- * Message to tell the client to open a GUI.
- *
  * @author Ordinastie
  *
  */
-public class DownloadAdvertMessage implements IMessageHandler<DownloadAdvertMessage.Packet, IMessage>
+public class AdvertSaveMessage implements IMessageHandler<SavePacket, IMessage>
 {
+	public static AdvertSaveMessage instance = new AdvertSaveMessage();
 
-	/**
-	 * Handles the received {@link Packet} on the client. Opens the GUI.
-	 *
-	 * @param message the message
-	 * @param ctx the ctx
-	 * @return the i message
-	 */
-	@Override
-	public IMessage onMessage(Packet message, MessageContext ctx)
+	private AdvertSaveMessage()
 	{
-		if (ctx.side == Side.SERVER)
-			return null;
+		MalisisAdvert.network.registerMessage(this, AdvertSaveMessage.SavePacket.class, Side.SERVER);
+	}
+
+	@Override
+	public IMessage onMessage(SavePacket message, MessageContext ctx)
+	{
+		if (message instanceof SavePacket && ctx.side == Side.SERVER)
+		{
+			ServerAdvert advert = ServerAdvert.get(message.id, true);
+			advert.setInfos(message.name, message.url);
+			advert.save();
+
+			AdvertListMessage.sendAdvert(advert);
+		}
+
 		return null;
 	}
 
-	/**
-	 * Sends a packet to client to notify it to open a {@link MalisisInventory}.
-	 *
-	 * @param container the container
-	 * @param player the player
-	 * @param windowId the window id
-	 */
-	public static void send(EntityPlayerMP player, String url)
+	public static void save(Advert advert)
 	{
-		Packet packet = new Packet(url);
-		NetworkHandler.network.sendTo(packet, player);
+		SavePacket packet = new SavePacket(advert);
+		MalisisAdvert.network.sendToServer(packet);
 	}
 
-	public static class Packet implements IMessage
+	public static class SavePacket implements IMessage
 	{
+		private int id;
+		private String name;
 		private String url;
 
-		public Packet(String url)
+		public SavePacket(Advert advert)
 		{
-			this.url = url;
+			id = advert.getId();
+			name = advert.getName();
+			url = advert.getUrl();
 		}
+
+		public SavePacket()
+		{}
 
 		@Override
 		public void fromBytes(ByteBuf buf)
 		{
+			id = buf.readInt();
+			name = ByteBufUtils.readUTF8String(buf);
 			url = ByteBufUtils.readUTF8String(buf);
 		}
 
 		@Override
 		public void toBytes(ByteBuf buf)
 		{
-			ByteBufUtils.writeUTF8String(buf, url);
+			buf.writeInt(id);
+			ByteBufUtils.writeUTF8String(buf, name == null ? "" : name);
+			ByteBufUtils.writeUTF8String(buf, url == null ? "" : url);
 		}
-
 	}
+
 }
