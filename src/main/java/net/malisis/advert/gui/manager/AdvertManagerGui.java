@@ -164,7 +164,11 @@ public class AdvertManagerGui extends MalisisGui
 
 			AdvertSaveMessage.save(advert);
 
-			tabs.setActiveTab(tabView);
+			if (advert.getId() != 0)
+				selectAdvert(advert);
+			else
+				showForm(false);
+
 		}
 		else if (event.isFrom("advertDelete"))
 		{
