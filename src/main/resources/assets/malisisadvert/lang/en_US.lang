@@ -1,3 +1,5 @@
+itemGroup.malisisadvert=MalisisAdvert
+
 #Advert Manager
 malisisadvert.gui.advertmanager=Advertisement Manager
 malisisadvert.gui.close=Close
