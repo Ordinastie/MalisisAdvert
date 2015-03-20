@@ -161,7 +161,6 @@ public class ClientAdvert extends Advert
 
 	public static void setAdvertList(ClientAdvert[] ads)
 	{
-		System.out.println("Setting " + ads.length + " adverts for client.");
 		for (ClientAdvert advert : ads)
 			adverts.put(advert.getId(), advert);
 	}
