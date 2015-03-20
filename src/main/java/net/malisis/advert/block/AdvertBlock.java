@@ -119,7 +119,7 @@ public class AdvertBlock extends MalisisBlock implements ITileEntityProvider, IC
 			return true;
 
 		AdvertTileEntity te = TileEntityUtils.getTileEntity(AdvertTileEntity.class, world, x, y, z);
-		if (te == null)
+		if (te == null || !player.canCommandSenderUseCommand(0, "malisisadvert"))
 			return true;
 
 		new AdvertSelectionGui(te).display();
