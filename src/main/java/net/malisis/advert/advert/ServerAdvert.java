@@ -102,8 +102,11 @@ public class ServerAdvert extends Advert
 			try
 			{
 				img = ImageIO.read(new ByteArrayInputStream(Files.toByteArray(file)));
-				width = img.getWidth();
-				height = img.getHeight();
+				if (img != null)
+				{
+					width = img.getWidth();
+					height = img.getHeight();
+				}
 			}
 			catch (IOException e)
 			{

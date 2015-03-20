@@ -100,15 +100,17 @@ public class AdvertDownloadMessage implements IMessageHandler<IMessage, IMessage
 		try
 		{
 			img = ImageIO.read(new ByteArrayInputStream(message.data));
+			if (img != null)
+				advert.setTexture(img, message.size);
+			else
+				advert.setError("Could not read image.");
+
 		}
 		catch (IOException e)
 		{
 			MalisisAdvert.log.error("Could not set the texture for {}", advert, e);
 			advert.setError("Could not read image.");
-			return;
 		}
-
-		advert.setTexture(img, message.size);
 	}
 
 	public static void queryDownload(Advert advert)

@@ -68,7 +68,7 @@ public class ClientAdvert extends Advert
 
 	public GuiTexture getTexture()
 	{
-		if (texture == null)
+		if (texture == null && getError() == null)
 			download();
 
 		return texture;
