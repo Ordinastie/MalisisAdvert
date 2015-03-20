@@ -19,24 +19,14 @@ apply plugin: 'forge'
 
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
-version = "1.7.10-1.4.3"
+version = "1.7.10-0.1"
 group = "net.malisis" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = "malisisdoors"
+archivesBaseName = "malisisadvert"
 libsDirName = "../releases"
-
-sourceSets
-{
-	main
-	{
-		java { srcDirs = ["$projectDir/source"] }
-		resources { srcDirs = ["$projectDir/resources"] }
-	}
-}
 
 dependencies
 {
-	compile 'org.projectlombok:lombok:1.14.8'
-	compile 'net.malisis:malisiscore:1.7.10-0.10.5:dev'	
+	compile 'net.malisis:malisiscore:1.7.10-0.10.6:dev'	
 }
 
 // because the normal output has been made to be obfuscated
@@ -61,7 +51,7 @@ minecraft {
 	}
 	
 	replace '${version}', project.version
-    replaceIn "MalisisDoors.java"
+    replaceIn "MalisisAdvert.java"
 }
 
 processResources
@@ -117,18 +107,18 @@ uploadArchives()
 					{
 						name project.archivesBaseName
 						packaging 'jar'
-						description 'Animations for doors, new ones, mixed blocks and vanishing blocks.'
-						url 'https://github.com/Ordinastie/MalisisDoors'
+						description 'In game configurable advertisement.'
+						url 'https://github.com/Ordinastie/MalisisAdvert'
 						scm 
 						{
-							url 'scm:git:git@github.com:Ordinastie/MalisisDoors.git'
-							connection 'scm:git:git@github.com:Ordinastie/MalisisDoors.git'
-							developerConnection 'scm:git:git@github.com:Ordinastie/MalisisDoors.git'
+							url 'scm:git:git@github.com:Ordinastie/MalisisAdvert.git'
+							connection 'scm:git:git@github.com:Ordinastie/MalisisAdvert.git'
+							developerConnection 'scm:git:git@github.com:Ordinastie/MalisisAdvert.git'
 						}
 						issueManagement 
 						{
 							system 'github'
-							url 'https://github.com/Ordinastie/MalisisDoors/issues'
+							url 'https://github.com/Ordinastie/MalisisAdvert/issues'
 						}
 						licenses 
 						{
