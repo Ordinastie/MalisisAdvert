@@ -1,4 +1,5 @@
 itemGroup.malisisadvert=MalisisAdvert
+tile.advertBlock.name=Advert
 
 #Advert Manager
 malisisadvert.gui.advertmanager=Advertisement Manager
