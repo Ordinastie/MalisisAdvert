@@ -32,6 +32,7 @@ import net.malisis.advert.MalisisAdvert;
 import net.malisis.advert.advert.Advert;
 import net.malisis.advert.advert.ClientAdvert;
 import net.malisis.advert.advert.ServerAdvert;
+import net.malisis.core.network.MalisisMessage;
 import net.minecraft.entity.player.EntityPlayerMP;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
@@ -42,11 +43,10 @@ import cpw.mods.fml.relauncher.Side;
  * @author Ordinastie
  *
  */
+@MalisisMessage
 public class AdvertListMessage implements IMessageHandler<IMessage, IMessage>
 {
-	public static AdvertListMessage instance = new AdvertListMessage();
-
-	private AdvertListMessage()
+	public AdvertListMessage()
 	{
 		MalisisAdvert.network.registerMessage(this, AdvertListMessage.Query.class, Side.SERVER);
 		MalisisAdvert.network.registerMessage(this, AdvertListMessage.Response.class, Side.CLIENT);

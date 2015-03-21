@@ -30,6 +30,7 @@ import net.malisis.advert.advert.Advert;
 import net.malisis.advert.advert.ClientAdvert;
 import net.malisis.advert.advert.ServerAdvert;
 import net.malisis.advert.network.AdvertDeleteMessage.DeletePacket;
+import net.malisis.core.network.MalisisMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
@@ -39,11 +40,10 @@ import cpw.mods.fml.relauncher.Side;
  * @author Ordinastie
  *
  */
+@MalisisMessage
 public class AdvertDeleteMessage implements IMessageHandler<DeletePacket, IMessage>
 {
-	public static AdvertDeleteMessage instance = new AdvertDeleteMessage();
-
-	private AdvertDeleteMessage()
+	public AdvertDeleteMessage()
 	{
 		MalisisAdvert.network.registerMessage(this, AdvertDeleteMessage.DeletePacket.class, Side.SERVER);
 		MalisisAdvert.network.registerMessage(this, AdvertDeleteMessage.DeletePacket.class, Side.CLIENT);

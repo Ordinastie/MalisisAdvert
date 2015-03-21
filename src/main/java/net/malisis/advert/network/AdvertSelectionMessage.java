@@ -29,6 +29,7 @@ import net.malisis.advert.AdvertModel;
 import net.malisis.advert.MalisisAdvert;
 import net.malisis.advert.advert.AdvertSelection;
 import net.malisis.advert.tileentity.AdvertTileEntity;
+import net.malisis.core.network.MalisisMessage;
 import net.malisis.core.util.TileEntityUtils;
 import net.minecraft.world.World;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
@@ -40,10 +41,9 @@ import cpw.mods.fml.relauncher.Side;
  * @author Ordinastie
  *
  */
+@MalisisMessage
 public class AdvertSelectionMessage implements IMessageHandler<AdvertSelectionMessage.Packet, IMessage>
 {
-	public static AdvertSelectionMessage instance = new AdvertSelectionMessage();
-
 	public AdvertSelectionMessage()
 	{
 		MalisisAdvert.network.registerMessage(this, AdvertSelectionMessage.Packet.class, Side.SERVER);

@@ -29,6 +29,7 @@ import net.malisis.advert.MalisisAdvert;
 import net.malisis.advert.advert.Advert;
 import net.malisis.advert.advert.ServerAdvert;
 import net.malisis.advert.network.AdvertSaveMessage.SavePacket;
+import net.malisis.core.network.MalisisMessage;
 import cpw.mods.fml.common.network.ByteBufUtils;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
@@ -39,11 +40,10 @@ import cpw.mods.fml.relauncher.Side;
  * @author Ordinastie
  *
  */
+@MalisisMessage
 public class AdvertSaveMessage implements IMessageHandler<SavePacket, IMessage>
 {
-	public static AdvertSaveMessage instance = new AdvertSaveMessage();
-
-	private AdvertSaveMessage()
+	public AdvertSaveMessage()
 	{
 		MalisisAdvert.network.registerMessage(this, AdvertSaveMessage.SavePacket.class, Side.SERVER);
 	}
