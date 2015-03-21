@@ -28,11 +28,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import net.malisis.advert.gui.manager.AdvertManagerGui;
+import net.malisis.advert.network.AdvertGuiMessage;
 import net.malisis.core.MalisisCore;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
+import net.minecraft.entity.player.EntityPlayerMP;
 
 /**
  * Commands handler for {@link MalisisCore} mod.
@@ -87,7 +88,7 @@ public class MalisisAdvertCommand extends CommandBase
 	{
 		if (params.length == 0)
 		{
-			openManagerGui();
+			AdvertGuiMessage.openManager((EntityPlayerMP) sender);
 			return;
 		}
 
@@ -116,11 +117,6 @@ public class MalisisAdvertCommand extends CommandBase
 		//			return getListOfStringsFromIterableMatchingLastWord(params, MalisisCore.listModId());
 		//		else
 		return null;
-	}
-
-	private void openManagerGui()
-	{
-		new AdvertManagerGui().display(true);
 	}
 
 }

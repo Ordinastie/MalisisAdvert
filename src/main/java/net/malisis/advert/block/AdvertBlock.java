@@ -26,7 +26,7 @@ package net.malisis.advert.block;
 
 import net.malisis.advert.AdvertModel;
 import net.malisis.advert.MalisisAdvert;
-import net.malisis.advert.gui.advertselection.AdvertSelectionGui;
+import net.malisis.advert.network.AdvertGuiMessage;
 import net.malisis.advert.tileentity.AdvertTileEntity;
 import net.malisis.core.block.BoundingBoxType;
 import net.malisis.core.block.MalisisBlock;
@@ -39,6 +39,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
@@ -115,14 +116,14 @@ public class AdvertBlock extends MalisisBlock implements ITileEntityProvider, IC
 	@Override
 	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ)
 	{
-		if (!world.isRemote)
+		if (world.isRemote)
 			return true;
 
 		AdvertTileEntity te = TileEntityUtils.getTileEntity(AdvertTileEntity.class, world, x, y, z);
 		if (te == null || !player.canCommandSenderUseCommand(0, "malisisadvert"))
 			return true;
 
-		new AdvertSelectionGui(te).display();
+		AdvertGuiMessage.openSelection((EntityPlayerMP) player, te);
 
 		return true;
 	}

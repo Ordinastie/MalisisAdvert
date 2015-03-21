@@ -9,15 +9,14 @@ import net.malisis.core.MalisisCore;
 import net.malisis.core.configuration.Settings;
 import net.malisis.core.network.MalisisNetwork;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraftforge.client.ClientCommandHandler;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
-import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 
@@ -83,9 +82,9 @@ public class MalisisAdvert implements IMalisisMod
 	}
 
 	@EventHandler
-	public void init(FMLInitializationEvent event)
+	public void serverLoad(FMLServerStartingEvent event)
 	{
-		ClientCommandHandler.instance.registerCommand(new MalisisAdvertCommand());
+		event.registerServerCommand(new MalisisAdvertCommand());
 	}
 
 	public static class Blocks
