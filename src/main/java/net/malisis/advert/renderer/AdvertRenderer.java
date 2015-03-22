@@ -91,10 +91,6 @@ public class AdvertRenderer extends MalisisRenderer
 	@Override
 	public void render()
 	{
-		//TODO: remove
-		if (renderType == RenderType.ISBRH_WORLD)
-			initialize();
-
 		tileEntity = (AdvertTileEntity) super.tileEntity;
 		rp.icon.reset();
 		rp.useCustomTexture.reset();
@@ -135,9 +131,11 @@ public class AdvertRenderer extends MalisisRenderer
 		AdvertSelection as = tileEntity.getCurrentSelection();
 		ClientAdvert advert = null;
 		if (as != null)
+		{
 			advert = as.getAdvert();
-		if (advert == null && !ClientAdvert.isPending())
-			tileEntity.addSelection(0, null);
+			if (advert == null && !ClientAdvert.isPending())
+				tileEntity.addSelection(0, null);
+		}
 
 		if (advert != null && advert.getTexture() != null)
 		{

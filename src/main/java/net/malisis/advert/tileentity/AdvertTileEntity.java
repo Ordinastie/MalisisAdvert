@@ -109,9 +109,7 @@ public class AdvertTileEntity extends TileEntity
 
 	public void removeSelection(int index)
 	{
-		if (index < 0 || index >= availableSlots)
-			return;
-		selectedAdverts[index] = null;
+		addSelection(index, null);
 	}
 
 	@Override
