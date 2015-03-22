@@ -26,7 +26,7 @@ libsDirName = "../releases"
 
 dependencies
 {
-	compile 'net.malisis:malisiscore:1.7.10-0.10.6:dev'	
+	compile 'net.malisis:malisiscore:1.7.10-0.11:dev'	
 }
 
 // because the normal output has been made to be obfuscated
