@@ -74,7 +74,7 @@ public class ServerAdvert extends Advert
 	private static String advertDir = "adverts/";
 	private static String advertListing = "listing.txt";
 	private static File packDir = new File("./" + advertDir);
-	private static int globalId = 0;
+	private static int globalId = 1;
 
 	protected File file;
 
@@ -220,7 +220,7 @@ public class ServerAdvert extends Advert
 	public static ServerAdvert get(int id, boolean create)
 	{
 		ServerAdvert advert = adverts.get(id);
-		if (advert == null)
+		if (advert == null || id == 0)
 		{
 			if (create)
 				advert = new ServerAdvert(globalId++, "", "");
