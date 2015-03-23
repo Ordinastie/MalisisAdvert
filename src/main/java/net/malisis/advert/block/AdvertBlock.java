@@ -68,12 +68,12 @@ public class AdvertBlock extends MalisisBlock implements ITileEntityProvider, IC
 		super(Material.iron);
 		setResistance(6000);
 		setHardness(6000);
-		setBlockName("advertBlock");
+		setUnlocalizedName("advertBlock");
 		setCreativeTab(MalisisAdvert.tab);
 	}
 
 	@Override
-	public void registerBlockIcons(IIconRegister register)
+	public void registerIcons(IIconRegister register)
 	{
 		blockIcon = register.registerIcon("malisisadvert:MA");
 		panelIcon = register.registerIcon("malisisadvert:panel");

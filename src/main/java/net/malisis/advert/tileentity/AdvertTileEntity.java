@@ -103,8 +103,8 @@ public class AdvertTileEntity extends TileEntity
 			return;
 
 		selectedAdverts[index] = advertSelection;
-		if (getWorldObj() != null)
-			getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
+		if (getWorld() != null)
+			getWorld().markBlockForUpdate(xCoord, yCoord, zCoord);
 	}
 
 	public void removeSelection(int index)
@@ -147,16 +147,16 @@ public class AdvertTileEntity extends TileEntity
 	@Override
 	public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity packet)
 	{
-		this.readFromNBT(packet.func_148857_g());
+		this.readFromNBT(packet.getNbtCompound());
 		TileEntityUtils.updateGui(this);
 	}
 
 	@Override
 	public AxisAlignedBB getRenderBoundingBox()
 	{
-		return AABBUtils.combine(
-				((MalisisBlock) getBlockType()).getBoundingBox(getWorldObj(), xCoord, yCoord, zCoord, BoundingBoxType.RENDER)).offset(
-				xCoord, yCoord, zCoord);
+		return AABBUtils
+				.combine(((MalisisBlock) getBlockType()).getBoundingBox(getWorld(), xCoord, yCoord, zCoord, BoundingBoxType.RENDER))
+				.offset(xCoord, yCoord, zCoord);
 	}
 
 }
