@@ -70,6 +70,10 @@ public class AdvertView extends UIComponent<AdvertView>
 		if (advertSelection != null)
 		{
 			advert = advertSelection.getAdvert();
+			sX = advertSelection.getX(advertSelection.u);
+			sY = advertSelection.getY(advertSelection.v);
+			eX = advertSelection.getX(advertSelection.U);
+			eY = advertSelection.getY(advertSelection.V);
 		}
 	}
 
