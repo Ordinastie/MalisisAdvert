@@ -129,6 +129,13 @@ public class AdvertBlock extends MalisisBlock implements ITileEntityProvider, IC
 	}
 
 	@Override
+	public AxisAlignedBB[] getPlacedBoundingBox(IBlockAccess world, int x, int y, int z, int side, EntityPlayer entity, ItemStack itemStack)
+	{
+		//No point in checking collision here because model can be changed afterwards anyway
+		return null;
+	}
+
+	@Override
 	public AxisAlignedBB[] getBoundingBox(IBlockAccess world, int x, int y, int z, BoundingBoxType type)
 	{
 		int[] dirs = { 2, 0, 1, 3 };
@@ -181,4 +188,11 @@ public class AdvertBlock extends MalisisBlock implements ITileEntityProvider, IC
 	{
 		return renderId;
 	}
+
+	@Override
+	public int blockRange()
+	{
+		return 3;
+	}
+
 }
