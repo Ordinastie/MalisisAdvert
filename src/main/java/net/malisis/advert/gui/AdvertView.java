@@ -26,10 +26,10 @@ package net.malisis.advert.gui;
 
 import java.util.List;
 
-import net.malisis.advert.AdvertModel;
 import net.malisis.advert.advert.AdvertSelection;
 import net.malisis.advert.advert.ClientAdvert;
 import net.malisis.advert.gui.advertselection.AdvertSelectionGui;
+import net.malisis.advert.model.AdvertModel;
 import net.malisis.core.client.gui.GuiRenderer;
 import net.malisis.core.client.gui.GuiTexture;
 import net.malisis.core.client.gui.MalisisGui;
@@ -129,7 +129,7 @@ public class AdvertView extends UIComponent<AdvertView>
 	private void forceRatio()
 	{
 		AdvertModel model = ((AdvertSelectionGui) getGui()).getModel();
-		float mratio = (float) model.getWidth() / model.getHeight();
+		float mratio = model.getWidth() / model.getHeight();
 
 		int dy = (int) (Math.abs(eX - sX) / mratio);
 		if (sY < eY)

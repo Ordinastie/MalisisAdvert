@@ -24,8 +24,9 @@
 
 package net.malisis.advert.tileentity;
 
-import net.malisis.advert.AdvertModel;
+import net.malisis.advert.MalisisAdvert;
 import net.malisis.advert.advert.AdvertSelection;
+import net.malisis.advert.model.AdvertModel;
 import net.malisis.core.block.BoundingBoxType;
 import net.malisis.core.block.MalisisBlock;
 import net.malisis.core.util.AABBUtils;
@@ -65,7 +66,7 @@ public class AdvertTileEntity extends TileEntity
 		if (model != null && model.isWallMounted() == wallMounted)
 			this.model = model;
 		else
-			this.model = isWallMounted() ? AdvertModel.PANEL_WALL : AdvertModel.PANEL_SMALL_FOOT;
+			this.model = isWallMounted() ? MalisisAdvert.defaultWallModel : MalisisAdvert.defaultModel;
 	}
 
 	public void setWallMounted(boolean wallMounted)
@@ -116,8 +117,11 @@ public class AdvertTileEntity extends TileEntity
 	public void writeToNBT(NBTTagCompound tagCompound)
 	{
 		super.writeToNBT(tagCompound);
+
+		if (model != null)
+			model.writeToNBT(tagCompound);
+
 		tagCompound.setBoolean("wall_mounted", wallMounted);
-		tagCompound.setInteger("model", model.ordinal());
 
 		AdvertSelection as = selectedAdverts[0];
 		if (as == null)
@@ -130,8 +134,10 @@ public class AdvertTileEntity extends TileEntity
 	public void readFromNBT(NBTTagCompound tagCompound)
 	{
 		super.readFromNBT(tagCompound);
+
+		model = AdvertModel.fromNBT(tagCompound);
+
 		wallMounted = tagCompound.getBoolean("wall_mounted");
-		setModel(AdvertModel.values()[tagCompound.getInteger("model")]);
 
 		addSelection(0, AdvertSelection.fromNBT(tagCompound));
 	}

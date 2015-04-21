@@ -24,11 +24,10 @@
 
 package net.malisis.advert.gui.advertselection;
 
-import java.util.EnumSet;
-
-import net.malisis.advert.AdvertModel;
+import net.malisis.advert.MalisisAdvert;
 import net.malisis.advert.advert.AdvertSelection;
 import net.malisis.advert.gui.AdvertView;
+import net.malisis.advert.model.AdvertModel;
 import net.malisis.advert.network.AdvertSelectionMessage;
 import net.malisis.advert.tileentity.AdvertTileEntity;
 import net.malisis.core.client.gui.Anchor;
@@ -84,7 +83,7 @@ public class AdvertSelectionGui extends MalisisGui
 			}
 		};
 
-		selModel = new UISelect<AdvertModel>(this, 150, EnumSet.allOf(AdvertModel.class)).setPosition(0, y);
+		selModel = new UISelect<AdvertModel>(this, 150, MalisisAdvert.listModels()).setPosition(0, y);
 		selModel.setLabelPattern("malisisadvert.gui.model.%s");
 		selModel.setDisablePredicate(pred);
 		y += 25;

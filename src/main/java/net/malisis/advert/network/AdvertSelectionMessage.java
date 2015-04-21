@@ -25,13 +25,14 @@
 package net.malisis.advert.network;
 
 import io.netty.buffer.ByteBuf;
-import net.malisis.advert.AdvertModel;
 import net.malisis.advert.MalisisAdvert;
 import net.malisis.advert.advert.AdvertSelection;
+import net.malisis.advert.model.AdvertModel;
 import net.malisis.advert.tileentity.AdvertTileEntity;
 import net.malisis.core.network.MalisisMessage;
 import net.malisis.core.util.TileEntityUtils;
 import net.minecraft.world.World;
+import cpw.mods.fml.common.network.ByteBufUtils;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
@@ -94,7 +95,7 @@ public class AdvertSelectionMessage implements IMessageHandler<AdvertSelectionMe
 			y = buf.readInt();
 			z = buf.readInt();
 
-			model = AdvertModel.values()[buf.readInt()];
+			model = MalisisAdvert.getModel(ByteBufUtils.readUTF8String(buf));
 
 			if (!buf.isReadable())
 				return;
@@ -109,7 +110,7 @@ public class AdvertSelectionMessage implements IMessageHandler<AdvertSelectionMe
 			buf.writeInt(y);
 			buf.writeInt(z);
 
-			buf.writeInt(model.ordinal());
+			ByteBufUtils.writeUTF8String(buf, model.getId());
 
 			if (advertSelection != null)
 				advertSelection.toBytes(buf);

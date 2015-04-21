@@ -1,7 +1,14 @@
 package net.malisis.advert;
 
 import static net.malisis.advert.MalisisAdvert.Blocks.*;
+
+import java.util.Collection;
+import java.util.HashMap;
+
 import net.malisis.advert.block.AdvertBlock;
+import net.malisis.advert.model.AdvertModel;
+import net.malisis.advert.model.PanelModel;
+import net.malisis.advert.model.PanelModel.FootType;
 import net.malisis.advert.renderer.AdvertRenderer;
 import net.malisis.advert.tileentity.AdvertTileEntity;
 import net.malisis.core.IMalisisMod;
@@ -32,6 +39,10 @@ public class MalisisAdvert implements IMalisisMod
 	public static MalisisNetwork network;
 
 	public static CreativeTabs tab = new MalisisAdvertTab();
+
+	private static HashMap<String, AdvertModel> modelRegistry = new HashMap<>();
+	public static AdvertModel defaultWallModel;
+	public static AdvertModel defaultModel;
 
 	public MalisisAdvert()
 	{
@@ -74,6 +85,8 @@ public class MalisisAdvert implements IMalisisMod
 		advertBlock.register();
 		GameRegistry.registerTileEntity(AdvertTileEntity.class, "advertTileEntity");
 
+		registerModels();
+
 		if (event.getSide() == Side.CLIENT)
 		{
 			AdvertRenderer wpr = new AdvertRenderer();
@@ -86,6 +99,34 @@ public class MalisisAdvert implements IMalisisMod
 	{
 		event.registerServerCommand(new MalisisAdvertCommand());
 	}
+
+	//#region Model registry
+	public static void registerModels()
+	{
+		defaultWallModel = new PanelModel(FootType.WALL, true);
+		defaultModel = new PanelModel(FootType.SMALL, false);
+
+		registerModel(defaultWallModel);
+		registerModel(defaultModel);
+		registerModel(new PanelModel(FootType.FULL, false));
+	}
+
+	public static void registerModel(AdvertModel model)
+	{
+		modelRegistry.put(model.getId(), model);
+	}
+
+	public static Collection<AdvertModel> listModels()
+	{
+		return modelRegistry.values();
+	}
+
+	public static AdvertModel getModel(String id)
+	{
+		return modelRegistry.get(id);
+	}
+
+	//#end Model registry
 
 	public static class Blocks
 	{

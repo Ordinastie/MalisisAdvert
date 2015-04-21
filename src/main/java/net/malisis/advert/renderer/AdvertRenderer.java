@@ -24,11 +24,10 @@
 
 package net.malisis.advert.renderer;
 
-import net.malisis.advert.AdvertModel;
-import net.malisis.advert.MalisisAdvert;
 import net.malisis.advert.advert.AdvertSelection;
 import net.malisis.advert.advert.ClientAdvert;
 import net.malisis.advert.block.AdvertBlock;
+import net.malisis.advert.model.AdvertModel;
 import net.malisis.advert.tileentity.AdvertTileEntity;
 import net.malisis.core.renderer.MalisisRenderer;
 import net.malisis.core.renderer.RenderParameters;
@@ -36,7 +35,6 @@ import net.malisis.core.renderer.RenderType;
 import net.malisis.core.renderer.element.Shape;
 import net.malisis.core.renderer.element.shape.Cube;
 import net.malisis.core.renderer.model.MalisisModel;
-import net.minecraft.util.ResourceLocation;
 
 /**
  * @author Ordinastie
@@ -44,13 +42,8 @@ import net.minecraft.util.ResourceLocation;
  */
 public class AdvertRenderer extends MalisisRenderer
 {
-	private ResourceLocation rlModel;
-	private ResourceLocation rlMA;
+	private AdvertModel advertModel;
 	private MalisisModel model;
-	private Shape smallFoot;
-	private Shape fullFoot;
-	private Shape panel;
-	private Shape display;
 	private Shape cube;
 
 	private AdvertTileEntity tileEntity;
@@ -58,17 +51,7 @@ public class AdvertRenderer extends MalisisRenderer
 	@Override
 	protected void initialize()
 	{
-		rlModel = new ResourceLocation(MalisisAdvert.modid, "models/panel.obj");
-		rlMA = new ResourceLocation(MalisisAdvert.modid, "textures/blocks/MA23.png");
-
-		model = new MalisisModel(rlModel);
-		smallFoot = model.getShape("SmallFoot");
-		fullFoot = model.getShape("FullFoot");
-		panel = model.getShape("Panel");
-		display = model.getShape("Advert");
-
 		cube = new Cube();
-
 		rp = new RenderParameters();
 	}
 
@@ -91,67 +74,60 @@ public class AdvertRenderer extends MalisisRenderer
 	@Override
 	public void render()
 	{
-		tileEntity = (AdvertTileEntity) super.tileEntity;
 		rp.icon.reset();
 		rp.useCustomTexture.reset();
-
-		model.resetState();
-		model.rotate(getRotation(), 0, 1, 0, 0, 0, 0);
-		if (renderType == RenderType.ISBRH_WORLD)
-		{
-			renderBlock();
-		}
 
 		if (renderType == RenderType.ISBRH_INVENTORY)
 		{
 			drawShape(cube, rp);
+			return;
+		}
+
+		tileEntity = (AdvertTileEntity) super.tileEntity;
+		if (tileEntity == null || tileEntity.getModel() == null)
+		{
+			if (renderType == RenderType.ISBRH_WORLD)
+				drawShape(cube, rp);
+			return;
+		}
+
+		advertModel = tileEntity.getModel();
+		advertModel.loadModelFile();
+		model = advertModel.getModel();
+		model.resetState();
+		model.rotate(getRotation(), 0, 1, 0, 0, 0, 0);
+
+		if (renderType == RenderType.ISBRH_WORLD)
+		{
+			advertModel.renderBlock(this, tileEntity, rp);
+			return;
 		}
 
 		if (renderType == RenderType.TESR_WORLD)
 		{
-			renderTileEntity();
+			AdvertSelection as = tileEntity.getCurrentSelection();
+			ClientAdvert advert = null;
+
+			if (as != null)
+			{
+				advert = as.getAdvert();
+				if (advert == null && !ClientAdvert.isPending())
+					tileEntity.addSelection(0, null);
+			}
+
+			if (advert != null && advert.getTexture() != null)
+			{
+				bindTexture(advert.getTexture().getResourceLocation());
+				rp.icon.set(as.getIcon());
+			}
+			else
+			{
+				bindTexture(advertModel.getPlaceHolder());
+				rp.useCustomTexture.set(true);
+				rp.icon.set(null);
+			}
+
+			advertModel.renderTileEntity(this, tileEntity, rp);
 		}
-	}
-
-	private void renderBlock()
-	{
-		rp.icon.set(((AdvertBlock) block).getPanelIcon());
-		if (tileEntity.getModel() == AdvertModel.PANEL_SMALL_FOOT)
-			drawShape(smallFoot, rp);
-		else if (tileEntity.getModel() == AdvertModel.PANEL_FULL_FOOT)
-			drawShape(fullFoot, rp);
-		else
-			panel.translate(0, -1, -.5F);
-
-		drawShape(panel, rp);
-	}
-
-	private void renderTileEntity()
-	{
-		AdvertSelection as = tileEntity.getCurrentSelection();
-		ClientAdvert advert = null;
-		if (as != null)
-		{
-			advert = as.getAdvert();
-			if (advert == null && !ClientAdvert.isPending())
-				tileEntity.addSelection(0, null);
-		}
-
-		if (advert != null && advert.getTexture() != null)
-		{
-			bindTexture(advert.getTexture().getResourceLocation());
-			rp.icon.set(as.getIcon());
-		}
-		else
-		{
-			bindTexture(rlMA);
-			rp.useCustomTexture.set(true);
-			rp.icon.set(null);
-		}
-
-		if (tileEntity.getModel() == AdvertModel.PANEL_WALL)
-			display.translate(0, -1, -.5F);
-
-		drawShape(display, rp);
 	}
 }

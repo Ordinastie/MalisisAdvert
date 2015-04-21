@@ -16,8 +16,8 @@ malisisadvert.gui.querylist=Downloading advert list.
 
 #Advert Selection
 malisisadvert.gui.model.PANEL_WALL=Panel (Wall)
-malisisadvert.gui.model.PANEL_SMALL_FOOT=Panel (Small foot)
-malisisadvert.gui.model.PANEL_FULL_FOOT=Panel (Full foot)
+malisisadvert.gui.model.PANEL_SMALL=Panel (Small foot)
+malisisadvert.gui.model.PANEL_FULL=Panel (Full foot)
 malisisadvert.gui.model.BILLBOARD_WALL=Billboard (Wall)
 
 malisisadvert.gui.advertselection=Advert Selection

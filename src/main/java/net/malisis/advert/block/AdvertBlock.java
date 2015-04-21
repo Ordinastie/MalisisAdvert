@@ -24,8 +24,8 @@
 
 package net.malisis.advert.block;
 
-import net.malisis.advert.AdvertModel;
 import net.malisis.advert.MalisisAdvert;
+import net.malisis.advert.model.AdvertModel;
 import net.malisis.advert.network.AdvertGuiMessage;
 import net.malisis.advert.tileentity.AdvertTileEntity;
 import net.malisis.core.block.BoundingBoxType;
@@ -76,7 +76,8 @@ public class AdvertBlock extends MalisisBlock implements ITileEntityProvider, IC
 	public void registerIcons(IIconRegister register)
 	{
 		blockIcon = register.registerIcon("malisisadvert:MA");
-		panelIcon = register.registerIcon("malisisadvert:panel");
+		for (AdvertModel model : MalisisAdvert.listModels())
+			model.registerIcons(register);
 	}
 
 	public IIcon getPanelIcon()
@@ -100,14 +101,14 @@ public class AdvertBlock extends MalisisBlock implements ITileEntityProvider, IC
 		int metadata = world.getBlockMetadata(x, y, z);
 		if (metadata == 1)
 		{
-			te.setModel(AdvertModel.PANEL_SMALL_FOOT);
+			te.setModel(MalisisAdvert.defaultModel);
 			ForgeDirection dir = EntityUtils.getEntityFacing(player);
 			world.setBlockMetadataWithNotify(x, y, z, dir.ordinal() - 2, 3);
 		}
 		else
 		{
 			te.setWallMounted(true);
-			te.setModel(AdvertModel.PANEL_WALL);
+			te.setModel(MalisisAdvert.defaultWallModel);
 			world.setBlockMetadataWithNotify(x, y, z, ForgeDirection.getOrientation(metadata).getOpposite().ordinal() - 2, 3);
 		}
 
@@ -139,28 +140,11 @@ public class AdvertBlock extends MalisisBlock implements ITileEntityProvider, IC
 	public AxisAlignedBB[] getBoundingBox(IBlockAccess world, int x, int y, int z, BoundingBoxType type)
 	{
 		int[] dirs = { 2, 0, 1, 3 };
-		float w = .1875F;
 		AdvertTileEntity te = TileEntityUtils.getTileEntity(AdvertTileEntity.class, world, x, y, z);
-		if (te == null)
+		if (te == null || te.getModel() == null)
 			return new AxisAlignedBB[] { AxisAlignedBB.getBoundingBox(0, 0, 0, 1, 1, 1) };
 
-		AxisAlignedBB foot = AxisAlignedBB.getBoundingBox(0.375F, 0, 0.5F - w, 0.625F, 1, 0.5F);
-		AxisAlignedBB panel = AxisAlignedBB.getBoundingBox(-0.5F, 0, 0.5F - w, 1.5F, 3, 0.5F);
-
-		if (te.getModel() == AdvertModel.PANEL_WALL)
-			panel.offset(0, 0, 0.5F);
-
-		if (te.getModel() == AdvertModel.PANEL_FULL_FOOT)
-			panel.maxY++;
-
-		AxisAlignedBB[] aabbs;
-		if (te.getModel() == AdvertModel.PANEL_SMALL_FOOT)
-		{
-			panel.offset(0, 1, 0);
-			aabbs = new AxisAlignedBB[] { foot, panel };
-		}
-		else
-			aabbs = new AxisAlignedBB[] { panel };
+		AxisAlignedBB[] aabbs = te.getModel().getBoundingBox();
 
 		return AABBUtils.rotate(aabbs, dirs[te.getBlockMetadata()]);
 	}
