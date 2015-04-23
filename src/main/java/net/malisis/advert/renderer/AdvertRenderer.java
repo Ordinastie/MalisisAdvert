@@ -105,6 +105,9 @@ public class AdvertRenderer extends MalisisRenderer
 
 		if (renderType == RenderType.TESR_WORLD)
 		{
+
+			advertModel.renderTileEntity(this, tileEntity, rp);
+
 			AdvertSelection as = tileEntity.getCurrentSelection();
 			ClientAdvert advert = null;
 
@@ -127,7 +130,7 @@ public class AdvertRenderer extends MalisisRenderer
 				rp.icon.set(null);
 			}
 
-			advertModel.renderTileEntity(this, tileEntity, rp);
+			advertModel.renderAdvert(this, tileEntity, rp);
 		}
 	}
 }

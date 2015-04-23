@@ -28,114 +28,94 @@ import net.malisis.advert.MalisisAdvert;
 import net.malisis.advert.renderer.AdvertRenderer;
 import net.malisis.advert.tileentity.AdvertTileEntity;
 import net.malisis.core.renderer.RenderParameters;
+import net.malisis.core.renderer.animation.AnimationRenderer;
+import net.malisis.core.renderer.animation.transformation.Rotation;
 import net.malisis.core.renderer.element.Shape;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.ResourceLocation;
 
+import org.lwjgl.opengl.GL11;
+
 /**
  * @author Ordinastie
  *
  */
-public class PanelModel extends AdvertModel
+public class TriangularColumn extends AdvertModel
 {
-	public enum FootType
-	{
-		WALL, SMALL, FULL,
-	}
+	private Shape base;
+	private Shape topBottom;
+	private Shape panels;
+	private IIcon icon;
+	private AnimationRenderer ar;
+	private Rotation rotation;
 
-	protected FootType footType;
-	private Shape smallFoot;
-	private Shape fullFoot;
-	private Shape panel;
-	private Shape display;
-	private IIcon panelIcon;
-
-	public PanelModel(FootType footType, boolean wallMounted)
+	public TriangularColumn()
 	{
-		this.id = "PANEL_" + footType;
+		this.id = "triangular_column";
 		this.name = id;
-		this.width = 2;
-		this.height = 3;
-		this.objFile = new ResourceLocation(MalisisAdvert.modid, "models/panel.obj");
+		this.width = 1.4F;
+		this.height = 2.5F;
+		this.objFile = new ResourceLocation(MalisisAdvert.modid, "models/triangular_column.obj");
 		this.placeHolder = new ResourceLocation(MalisisAdvert.modid, "textures/blocks/MA23.png");
 
-		this.footType = footType;
-		this.isWallMounted = wallMounted;
+		this.isWallMounted = false;
 	}
 
 	@Override
 	public void loadModelFile()
 	{
+		//loaded = false;
 		if (loaded)
 			return;
 
 		super.loadModelFile();
-		smallFoot = model.getShape("SmallFoot");
-		fullFoot = model.getShape("FullFoot");
-		panel = model.getShape("Panel");
-		display = model.getShape("Advert");
+
+		base = model.getShape("base");
+		topBottom = model.getShape("PanelsTopBottom");
+		panels = model.getShape("Panels");
+		ar = new AnimationRenderer();
+		rotation = new Rotation(360, 0, 1, 0, 0, 0, 0).forTicks(600).loop(-1);
 	}
 
 	@Override
 	public void registerIcons(IIconRegister register)
 	{
-		panelIcon = register.registerIcon("malisisadvert:panel");
+		icon = register.registerIcon("malisisadvert:triangular_column");
 	}
 
 	@Override
 	public AxisAlignedBB[] getBoundingBox()
 	{
-		float w = 3F / 16F;
-		AxisAlignedBB foot = AxisAlignedBB.getBoundingBox(0.375F, 0, 0.5F - w, 0.625F, 1, 0.5F);
-		AxisAlignedBB panel = AxisAlignedBB.getBoundingBox(-0.5F, 0, 0.5F - w, 1.5F, 3, 0.5F);
-
-		if (footType == FootType.WALL)
-			panel.offset(0, 0, 0.5F);
-
-		if (footType == FootType.FULL)
-			panel.maxY++;
-
-		AxisAlignedBB[] aabbs;
-		if (footType == FootType.SMALL)
-		{
-			panel.offset(0, 1, 0);
-			aabbs = new AxisAlignedBB[] { foot, panel };
-		}
-		else
-			aabbs = new AxisAlignedBB[] { panel };
-
-		return aabbs;
+		AxisAlignedBB aabb = AxisAlignedBB.getBoundingBox(-0.2F, 0, 0.1F, 1.2F, 3, 1.3F);
+		return new AxisAlignedBB[] { aabb };
 	}
 
 	@Override
 	public void renderBlock(AdvertRenderer renderer, AdvertTileEntity tileEntity, RenderParameters rp)
 	{
-		rp.icon.set(panelIcon);
-		if (footType == FootType.SMALL)
-			renderer.drawShape(smallFoot, rp);
-		else if (footType == FootType.FULL)
-			renderer.drawShape(fullFoot, rp);
-		else
-			panel.translate(0, -1, -.5F);
-
-		renderer.drawShape(panel, rp);
+		rp.icon.set(icon);
+		renderer.drawShape(base, rp);
 	}
 
 	@Override
 	public void renderTileEntity(AdvertRenderer renderer, AdvertTileEntity tileEntity, RenderParameters rp)
 	{
+		topBottom.resetState();
+		ar.animate(topBottom, rotation);
 
+		renderer.next(GL11.GL_TRIANGLES);
+		rp.icon.set(icon);
+		renderer.drawShape(topBottom, rp);
+		renderer.next(GL11.GL_QUADS);
 	}
 
 	@Override
 	public void renderAdvert(AdvertRenderer renderer, AdvertTileEntity tileEntity, RenderParameters rp)
 	{
-		if (footType == FootType.WALL)
-			display.translate(0, -1, -.5F);
-
-		renderer.drawShape(display, rp);
+		panels.resetState();
+		ar.animate(panels, rotation);
+		renderer.drawShape(panels, rp);
 	}
-
 }

@@ -9,6 +9,7 @@ import net.malisis.advert.block.AdvertBlock;
 import net.malisis.advert.model.AdvertModel;
 import net.malisis.advert.model.PanelModel;
 import net.malisis.advert.model.PanelModel.FootType;
+import net.malisis.advert.model.TriangularColumn;
 import net.malisis.advert.renderer.AdvertRenderer;
 import net.malisis.advert.tileentity.AdvertTileEntity;
 import net.malisis.core.IMalisisMod;
@@ -109,6 +110,7 @@ public class MalisisAdvert implements IMalisisMod
 		registerModel(defaultWallModel);
 		registerModel(defaultModel);
 		registerModel(new PanelModel(FootType.FULL, false));
+		registerModel(new TriangularColumn());
 	}
 
 	public static void registerModel(AdvertModel model)

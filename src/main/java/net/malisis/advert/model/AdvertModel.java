@@ -171,6 +171,8 @@ public abstract class AdvertModel
 
 	public abstract void renderTileEntity(AdvertRenderer renderer, AdvertTileEntity tileEntity, RenderParameters rp);
 
+	public abstract void renderAdvert(AdvertRenderer renderer, AdvertTileEntity tileEntity, RenderParameters rp);
+
 	@Override
 	public String toString()
 	{

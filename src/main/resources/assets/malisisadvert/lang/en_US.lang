@@ -19,6 +19,7 @@ malisisadvert.gui.model.PANEL_WALL=Panel (Wall)
 malisisadvert.gui.model.PANEL_SMALL=Panel (Small foot)
 malisisadvert.gui.model.PANEL_FULL=Panel (Full foot)
 malisisadvert.gui.model.BILLBOARD_WALL=Billboard (Wall)
+malisisadvert.gui.model.triangular_column=Triangular Column
 
 malisisadvert.gui.advertselection=Advert Selection
 malisisadvert.gui.model=Model :
