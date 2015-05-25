@@ -34,6 +34,7 @@ import net.malisis.core.client.gui.GuiRenderer;
 import net.malisis.core.client.gui.GuiTexture;
 import net.malisis.core.client.gui.MalisisGui;
 import net.malisis.core.client.gui.component.UIComponent;
+import net.malisis.core.renderer.font.FontRenderOptions;
 import net.malisis.core.util.MouseButton;
 import net.minecraft.client.gui.GuiScreen;
 
@@ -46,6 +47,7 @@ import org.lwjgl.opengl.GL11;
  */
 public class AdvertView extends UIComponent<AdvertView>
 {
+	private FontRenderOptions fro;
 	private boolean editable = false;
 	private AdvertSelection advertSelection;
 	private int sX, sY, eX, eY;
@@ -57,6 +59,10 @@ public class AdvertView extends UIComponent<AdvertView>
 		super(gui);
 		this.editable = editable;
 		resetUVs();
+
+		fro = new FontRenderOptions();
+		fro.color = 0xFFFFFF;
+		fro.shadow = true;
 	}
 
 	public void setAdvert(ClientAdvert advert)
@@ -242,9 +248,9 @@ public class AdvertView extends UIComponent<AdvertView>
 			if (text != null)
 			{
 				int y = 0;
-				List<String> err = GuiRenderer.wrapText(text, getWidth());
+				List<String> err = getGui().getFont().wrapText(text, getWidth());
 				for (String e : err)
-					renderer.drawText(e, 0, 11 * y++, 0xFFFFFF, true);
+					renderer.drawText(null, e, 0, 11 * y++, 0, fro);
 			}
 			else
 				renderer.drawText("Downloading...");
