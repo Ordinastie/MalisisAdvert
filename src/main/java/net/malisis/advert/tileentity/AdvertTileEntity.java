@@ -24,9 +24,9 @@
 
 package net.malisis.advert.tileentity;
 
-import net.malisis.advert.MalisisAdvert;
 import net.malisis.advert.advert.AdvertSelection;
 import net.malisis.advert.model.AdvertModel;
+import net.malisis.advert.model.AdvertModel.IModelVariant;
 import net.malisis.core.block.BoundingBoxType;
 import net.malisis.core.block.MalisisBlock;
 import net.malisis.core.util.AABBUtils;
@@ -37,6 +37,7 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraftforge.common.util.Constants.NBT;
 
 /**
  * @author Ordinastie
@@ -45,6 +46,7 @@ import net.minecraft.util.AxisAlignedBB;
 public class AdvertTileEntity extends TileEntity
 {
 	protected AdvertModel model;
+	protected IModelVariant variant;
 	protected boolean wallMounted;
 	protected int availableSlots = 1;
 	protected AdvertSelection[] selectedAdverts;
@@ -53,7 +55,7 @@ public class AdvertTileEntity extends TileEntity
 	public AdvertTileEntity()
 	{
 		selectedAdverts = new AdvertSelection[availableSlots];
-		setModel(null);
+		setModel(null, null);
 	}
 
 	public AdvertModel getModel()
@@ -61,12 +63,21 @@ public class AdvertTileEntity extends TileEntity
 		return model;
 	}
 
-	public void setModel(AdvertModel model)
+	public IModelVariant getModelVariant()
 	{
-		if (model != null && model.isWallMounted() == wallMounted)
-			this.model = model;
-		else
-			this.model = isWallMounted() ? MalisisAdvert.defaultWallModel : MalisisAdvert.defaultModel;
+		return variant;
+	}
+
+	public void setModel(AdvertModel model, IModelVariant variant)
+	{
+		if (model == null)
+			model = AdvertModel.getModel(null);
+
+		if (variant == null || variant.isWallMounted() != isWallMounted())
+			variant = model.defaultVariant(isWallMounted());
+
+		this.model = model;
+		this.variant = variant;
 	}
 
 	public void setWallMounted(boolean wallMounted)
@@ -118,10 +129,14 @@ public class AdvertTileEntity extends TileEntity
 	{
 		super.writeToNBT(tagCompound);
 
-		if (model != null)
-			model.writeToNBT(tagCompound);
-
 		tagCompound.setBoolean("wall_mounted", wallMounted);
+		if (model != null)
+		{
+			tagCompound.setString("model", model.getId());
+			model.writeToNBT(this, tagCompound);
+		}
+		if (variant != null)
+			variant.writeToNBT(tagCompound);
 
 		AdvertSelection as = selectedAdverts[0];
 		if (as == null)
@@ -135,9 +150,21 @@ public class AdvertTileEntity extends TileEntity
 	{
 		super.readFromNBT(tagCompound);
 
-		model = AdvertModel.fromNBT(tagCompound);
-
 		wallMounted = tagCompound.getBoolean("wall_mounted");
+
+		String modelId;
+		if (tagCompound.hasKey("model", NBT.TAG_INT))
+			modelId = new String[] { "PANEL_WALL", "PANEL_SMALL_FOOT", "PANEL_FULL_FOOT" }[tagCompound.getInteger("model")];
+		else
+			modelId = tagCompound.getString("model");
+
+		AdvertModel model = AdvertModel.getModel(modelId);
+		model.readFromNBT(this, tagCompound);
+
+		IModelVariant variant = model.defaultVariant(isWallMounted());
+		variant.readFromNBT(tagCompound);
+
+		setModel(model, variant);
 
 		addSelection(0, AdvertSelection.fromNBT(tagCompound));
 	}

@@ -76,7 +76,7 @@ public class AdvertSelectionComponent extends UIContainer<AdvertSelectionCompone
 				return advert.getName();
 			}
 		};
-		selAdvert = new UISelect<ClientAdvert>(gui, 100, ClientAdvert.listAdverts()).setPosition(0, 12).register(this);
+		selAdvert = new UISelect<ClientAdvert>(gui, 150, ClientAdvert.listAdverts()).setPosition(0, 12).register(this);
 		selAdvert.setLabelFunction(labelFunc);
 
 		add(labelAdvert);

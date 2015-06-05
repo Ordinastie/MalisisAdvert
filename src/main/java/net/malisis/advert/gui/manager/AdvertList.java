@@ -42,8 +42,9 @@ import org.lwjgl.opengl.GL11;
  */
 public class AdvertList extends UIListContainer<AdvertList, ClientAdvert>
 {
-	private UILabel emptyLabel;
+	private MalisisFont font = MalisisFont.minecraftFont;
 	private FontRenderOptions fro;
+	private UILabel emptyLabel;
 
 	public AdvertList(MalisisGui gui)
 	{
@@ -105,7 +106,6 @@ public class AdvertList extends UIListContainer<AdvertList, ClientAdvert>
 	public void drawForeground(GuiRenderer renderer, int mouseX, int mouseY, float partialTick)
 	{
 		boolean isHovered = current.equals(hovered);
-		MalisisFont font = getGui().getFont();
 
 		//Name
 		int x = 2;

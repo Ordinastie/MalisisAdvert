@@ -99,14 +99,14 @@ public class AdvertRenderer extends MalisisRenderer
 
 		if (renderType == RenderType.ISBRH_WORLD)
 		{
-			advertModel.renderBlock(this, tileEntity, rp);
+			advertModel.renderBlock(this, tileEntity, rp, tileEntity.getModelVariant());
 			return;
 		}
 
 		if (renderType == RenderType.TESR_WORLD)
 		{
 
-			advertModel.renderTileEntity(this, tileEntity, rp);
+			advertModel.renderTileEntity(this, tileEntity, rp, tileEntity.getModelVariant());
 
 			AdvertSelection as = tileEntity.getCurrentSelection();
 			ClientAdvert advert = null;
@@ -130,7 +130,7 @@ public class AdvertRenderer extends MalisisRenderer
 				rp.icon.set(null);
 			}
 
-			advertModel.renderAdvert(this, tileEntity, rp);
+			advertModel.renderAdvert(this, tileEntity, rp, tileEntity.getModelVariant());
 		}
 	}
 }

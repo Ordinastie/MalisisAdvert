@@ -24,14 +24,20 @@
 
 package net.malisis.advert.model;
 
+import io.netty.buffer.ByteBuf;
 import net.malisis.advert.MalisisAdvert;
+import net.malisis.advert.model.TriangularColumn.Variant;
 import net.malisis.advert.renderer.AdvertRenderer;
 import net.malisis.advert.tileentity.AdvertTileEntity;
+import net.malisis.core.client.gui.MalisisGui;
+import net.malisis.core.client.gui.component.container.UIContainer;
+import net.malisis.core.client.gui.component.interaction.UICheckBox;
 import net.malisis.core.renderer.RenderParameters;
 import net.malisis.core.renderer.animation.AnimationRenderer;
 import net.malisis.core.renderer.animation.transformation.Rotation;
 import net.malisis.core.renderer.element.Shape;
 import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.ResourceLocation;
@@ -42,12 +48,13 @@ import org.lwjgl.opengl.GL11;
  * @author Ordinastie
  *
  */
-public class TriangularColumn extends AdvertModel
+public class TriangularColumn extends AdvertModel<Variant>
 {
-	private Shape base;
-	private Shape topBottom;
-	private Shape panels;
-	private IIcon icon;
+	private static Shape base;
+	private static Shape topBottom;
+	private static Shape panels;
+	private static IIcon icon;
+
 	private AnimationRenderer ar;
 	private Rotation rotation;
 
@@ -59,8 +66,6 @@ public class TriangularColumn extends AdvertModel
 		this.height = 2.5F;
 		this.objFile = new ResourceLocation(MalisisAdvert.modid, "models/triangular_column.obj");
 		this.placeHolder = new ResourceLocation(MalisisAdvert.modid, "textures/blocks/MA23.png");
-
-		this.isWallMounted = false;
 	}
 
 	@Override
@@ -80,30 +85,57 @@ public class TriangularColumn extends AdvertModel
 	}
 
 	@Override
+	public Variant defaultVariant(boolean wallMounted)
+	{
+		return new Variant();
+	}
+
+	@Override
 	public void registerIcons(IIconRegister register)
 	{
 		icon = register.registerIcon("malisisadvert:triangular_column");
 	}
 
 	@Override
-	public AxisAlignedBB[] getBoundingBox()
+	public AxisAlignedBB[] getBoundingBox(Variant variant)
 	{
 		AxisAlignedBB aabb = AxisAlignedBB.getBoundingBox(-0.2F, 0, 0.1F, 1.2F, 3, 1.3F);
 		return new AxisAlignedBB[] { aabb };
 	}
 
 	@Override
-	public void renderBlock(AdvertRenderer renderer, AdvertTileEntity tileEntity, RenderParameters rp)
+	public int getGuiComponent(MalisisGui gui, UIContainer container, Variant variant)
+	{
+		UICheckBox cb = new UICheckBox(gui, "malisisadvert.gui.model.triangular_column.rotate").setName("rotate");
+		cb.setChecked(variant.rotate);
+		container.add(cb);
+
+		return 15;
+	}
+
+	@Override
+	public Variant getVariantFromGui(UIContainer container)
+	{
+		Variant variant = new Variant();
+		UICheckBox cb = (UICheckBox) container.getComponent("rotate");
+		variant.rotate = cb.isChecked();
+
+		return variant;
+	}
+
+	@Override
+	public void renderBlock(AdvertRenderer renderer, AdvertTileEntity tileEntity, RenderParameters rp, Variant variant)
 	{
 		rp.icon.set(icon);
 		renderer.drawShape(base, rp);
 	}
 
 	@Override
-	public void renderTileEntity(AdvertRenderer renderer, AdvertTileEntity tileEntity, RenderParameters rp)
+	public void renderTileEntity(AdvertRenderer renderer, AdvertTileEntity tileEntity, RenderParameters rp, Variant variant)
 	{
-		topBottom.resetState();
-		ar.animate(topBottom, rotation);
+		//topBottom.resetState();
+		if (variant.rotate)
+			ar.animate(topBottom, rotation);
 
 		renderer.next(GL11.GL_TRIANGLES);
 		rp.icon.set(icon);
@@ -112,10 +144,46 @@ public class TriangularColumn extends AdvertModel
 	}
 
 	@Override
-	public void renderAdvert(AdvertRenderer renderer, AdvertTileEntity tileEntity, RenderParameters rp)
+	public void renderAdvert(AdvertRenderer renderer, AdvertTileEntity tileEntity, RenderParameters rp, Variant variant)
 	{
-		panels.resetState();
-		ar.animate(panels, rotation);
+		//panels.resetState();
+		if (variant.rotate)
+			ar.animate(panels, rotation);
 		renderer.drawShape(panels, rp);
+	}
+
+	public static class Variant implements AdvertModel.IModelVariant
+	{
+		boolean rotate = true;
+
+		@Override
+		public boolean isWallMounted()
+		{
+			return false;
+		}
+
+		@Override
+		public void readFromNBT(NBTTagCompound tagCompound)
+		{
+			rotate = tagCompound.hasKey("rotate") ? tagCompound.getBoolean("rotate") : true;
+		}
+
+		@Override
+		public void writeToNBT(NBTTagCompound tagCompound)
+		{
+			tagCompound.setBoolean("rotate", rotate);
+		}
+
+		@Override
+		public void fromBytes(ByteBuf buf)
+		{
+			rotate = buf.readBoolean();
+		}
+
+		@Override
+		public void toBytes(ByteBuf buf)
+		{
+			buf.writeBoolean(rotate);
+		}
 	}
 }

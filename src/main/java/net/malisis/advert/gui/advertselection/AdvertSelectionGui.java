@@ -24,10 +24,10 @@
 
 package net.malisis.advert.gui.advertselection;
 
-import net.malisis.advert.MalisisAdvert;
 import net.malisis.advert.advert.AdvertSelection;
 import net.malisis.advert.gui.AdvertView;
 import net.malisis.advert.model.AdvertModel;
+import net.malisis.advert.model.AdvertModel.IModelVariant;
 import net.malisis.advert.network.AdvertSelectionMessage;
 import net.malisis.advert.tileentity.AdvertTileEntity;
 import net.malisis.core.client.gui.Anchor;
@@ -36,11 +36,11 @@ import net.malisis.core.client.gui.component.container.UIContainer;
 import net.malisis.core.client.gui.component.container.UIPanel;
 import net.malisis.core.client.gui.component.container.UIWindow;
 import net.malisis.core.client.gui.component.decoration.UILabel;
+import net.malisis.core.client.gui.component.decoration.UISeparator;
 import net.malisis.core.client.gui.component.interaction.UIButton;
 import net.malisis.core.client.gui.component.interaction.UISelect;
 import net.malisis.core.util.TileEntityUtils;
 
-import com.google.common.base.Predicate;
 import com.google.common.eventbus.Subscribe;
 
 /**
@@ -54,6 +54,8 @@ public class AdvertSelectionGui extends MalisisGui
 	UISelect<AdvertModel> selModel;
 	private UIButton btnSave;
 	private UIButton btnClose;
+	private UIContainer modelCont;
+	private UISeparator separator;
 	private AdvertSelectionComponent asc;
 	private AdvertView adview;
 
@@ -74,19 +76,17 @@ public class AdvertSelectionGui extends MalisisGui
 		UILabel labelModel = new UILabel(this, "malisisadvert.gui.model");
 		y += 12;
 
-		Predicate<AdvertModel> pred = new Predicate<AdvertModel>()
-		{
-			@Override
-			public boolean apply(AdvertModel model)
-			{
-				return model.isWallMounted() != tileEntity.isWallMounted();
-			}
-		};
-
-		selModel = new UISelect<AdvertModel>(this, 150, MalisisAdvert.listModels()).setPosition(0, y);
+		selModel = new UISelect<AdvertModel>(this, 150, AdvertModel.list()).setPosition(0, y);
 		selModel.setLabelPattern("malisisadvert.gui.model.%s");
-		selModel.setDisablePredicate(pred);
-		y += 25;
+		selModel.register(this);
+		y += 18;
+
+		modelCont = new UIContainer(this);
+		modelCont.setPosition(5, y).setSize(1, 1);
+		y += 2;
+
+		separator = new UISeparator(this).setPosition(0, y).setColor(0x999999);
+		y += 5;
 
 		asc = new AdvertSelectionComponent(this).setPosition(0, y);
 
@@ -96,6 +96,8 @@ public class AdvertSelectionGui extends MalisisGui
 
 		left.add(labelModel);
 		left.add(selModel);
+		left.add(modelCont);
+		left.add(separator);
 		left.add(asc);
 
 		UIPanel right = new UIPanel(this, width / 2 - 15, height - 55).setPosition(-5, 15, Anchor.RIGHT);
@@ -129,12 +131,33 @@ public class AdvertSelectionGui extends MalisisGui
 		return selModel.getSelectedValue();
 	}
 
+	public void setModel(AdvertModel model)
+	{
+		modelCont.removeAll();
+
+		IModelVariant variant = tileEntity.getModel() == model ? tileEntity.getModelVariant() : model.defaultVariant(tileEntity
+				.isWallMounted());
+
+		int height = model.getGuiComponent(this, modelCont, variant);
+		modelCont.setSize(0, height);
+
+		separator.setPosition(0, 30 + height);
+		asc.setPosition(0, 35 + height);
+	}
+
 	@Override
 	public void updateGui()
 	{
 		selModel.setSelectedOption(tileEntity.getModel());
 		asc.setAdvertSelection(tileEntity.getCurrentSelection());
 		viewAdvertSelection(asc.getAdvertSelection());
+		setModel(tileEntity.getModel());
+	}
+
+	@Subscribe
+	public void onModelSelect(UISelect.SelectEvent<AdvertModel> event)
+	{
+		setModel(event.getNewValue());
 	}
 
 	@Subscribe
@@ -146,7 +169,9 @@ public class AdvertSelectionGui extends MalisisGui
 		if (event.getComponent() == btnSave)
 		{
 			asc.saveUVs();
-			AdvertSelectionMessage.saveSelection(tileEntity, selModel.getSelectedValue(), asc.getAdvertSelection());
+			AdvertModel model = selModel.getSelectedValue();
+			IModelVariant variant = model.getVariantFromGui(modelCont);
+			AdvertSelectionMessage.saveSelection(tileEntity, selModel.getSelectedValue(), variant, asc.getAdvertSelection());
 			close();
 		}
 	}

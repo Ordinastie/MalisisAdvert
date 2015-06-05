@@ -76,7 +76,7 @@ public class AdvertBlock extends MalisisBlock implements ITileEntityProvider, IC
 	public void registerIcons(IIconRegister register)
 	{
 		blockIcon = register.registerIcon("malisisadvert:MA");
-		for (AdvertModel model : MalisisAdvert.listModels())
+		for (AdvertModel model : AdvertModel.list())
 			model.registerIcons(register);
 	}
 
@@ -99,18 +99,16 @@ public class AdvertBlock extends MalisisBlock implements ITileEntityProvider, IC
 			return;
 
 		int metadata = world.getBlockMetadata(x, y, z);
-		if (metadata == 1)
-		{
-			te.setModel(MalisisAdvert.defaultModel);
-			ForgeDirection dir = EntityUtils.getEntityFacing(player);
-			world.setBlockMetadataWithNotify(x, y, z, dir.ordinal() - 2, 3);
-		}
-		else
+		ForgeDirection dir = EntityUtils.getEntityFacing(player);
+
+		//placed against a wall
+		if (metadata != 1)
 		{
 			te.setWallMounted(true);
-			te.setModel(MalisisAdvert.defaultWallModel);
-			world.setBlockMetadataWithNotify(x, y, z, ForgeDirection.getOrientation(metadata).getOpposite().ordinal() - 2, 3);
+			dir = ForgeDirection.getOrientation(metadata).getOpposite();
 		}
+		te.setModel(null, null);
+		world.setBlockMetadataWithNotify(x, y, z, dir.ordinal() - 2, 3);
 
 	}
 
@@ -144,7 +142,7 @@ public class AdvertBlock extends MalisisBlock implements ITileEntityProvider, IC
 		if (te == null || te.getModel() == null)
 			return new AxisAlignedBB[] { AxisAlignedBB.getBoundingBox(0, 0, 0, 1, 1, 1) };
 
-		AxisAlignedBB[] aabbs = te.getModel().getBoundingBox();
+		AxisAlignedBB[] aabbs = te.getModel().getBoundingBox(te.getModelVariant());
 
 		return AABBUtils.rotate(aabbs, dirs[te.getBlockMetadata()]);
 	}

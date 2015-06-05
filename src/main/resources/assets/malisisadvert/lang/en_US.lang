@@ -15,11 +15,18 @@ malisisadvert.gui.noad=No advert saved.
 malisisadvert.gui.querylist=Downloading advert list.
 
 #Advert Selection
-malisisadvert.gui.model.PANEL_WALL=Panel (Wall)
-malisisadvert.gui.model.PANEL_SMALL=Panel (Small foot)
-malisisadvert.gui.model.PANEL_FULL=Panel (Full foot)
-malisisadvert.gui.model.BILLBOARD_WALL=Billboard (Wall)
+malisisadvert.gui.model.panel=Panel
 malisisadvert.gui.model.triangular_column=Triangular Column
+
+malisisadvert.gui.model.panel.type=Type
+malisisadvert.gui.model.panel.SMALL=Small foot
+malisisadvert.gui.model.panel.FULL=Full foot
+malisisadvert.gui.model.panel.WALL=Wall
+
+malisisadvert.gui.model.triangular_column.rotate=Rotating
+
+malisisadvert.gui.model.BILLBOARD_WALL=Billboard (Wall)
+
 
 malisisadvert.gui.advertselection=Advert Selection
 malisisadvert.gui.model=Model :

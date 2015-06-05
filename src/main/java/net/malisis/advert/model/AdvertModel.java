@@ -24,33 +24,44 @@
 
 package net.malisis.advert.model;
 
-import net.malisis.advert.MalisisAdvert;
+import io.netty.buffer.ByteBuf;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
+import net.malisis.advert.model.AdvertModel.IModelVariant;
 import net.malisis.advert.renderer.AdvertRenderer;
 import net.malisis.advert.tileentity.AdvertTileEntity;
+import net.malisis.core.client.gui.MalisisGui;
+import net.malisis.core.client.gui.component.container.UIContainer;
 import net.malisis.core.renderer.RenderParameters;
 import net.malisis.core.renderer.model.MalisisModel;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.common.util.Constants.NBT;
 
 /**
  * @author Ordinastie
  *
  */
-public abstract class AdvertModel
+public abstract class AdvertModel<T extends IModelVariant>
 {
+	private static Map<String, AdvertModel> registry = new HashMap<>();
+
 	protected String id;
 	protected String name;
 	protected float width;
 	protected float height;
-	protected boolean isWallMounted = false;
 	protected ResourceLocation objFile;
 	protected ResourceLocation placeHolder;
 	protected MalisisModel model;
 
 	protected boolean loaded = false;
+
+	public AdvertModel()
+	{}
 
 	//#region Getters/Setters
 	public String getId()
@@ -91,16 +102,6 @@ public abstract class AdvertModel
 	public void setHeight(float height)
 	{
 		this.height = height;
-	}
-
-	public boolean isWallMounted()
-	{
-		return isWallMounted;
-	}
-
-	public void setWallMounted(boolean isWallMounted)
-	{
-		this.isWallMounted = isWallMounted;
 	}
 
 	public ResourceLocation getObjFile()
@@ -155,23 +156,27 @@ public abstract class AdvertModel
 		loaded = true;
 	}
 
-	public void writeToNBT(NBTTagCompound tagCompound)
-	{
-		tagCompound.setString("model", id);
-	}
-
-	public void readFromNBT(NBTTagCompound tagCompound)
+	public void writeToNBT(AdvertTileEntity tileEntity, NBTTagCompound tagCompound)
 	{}
+
+	public void readFromNBT(AdvertTileEntity te, NBTTagCompound tagCompound)
+	{}
+
+	public abstract T defaultVariant(boolean wallMounted);
 
 	public abstract void registerIcons(IIconRegister register);
 
-	public abstract AxisAlignedBB[] getBoundingBox();
+	public abstract AxisAlignedBB[] getBoundingBox(T variant);
 
-	public abstract void renderBlock(AdvertRenderer renderer, AdvertTileEntity tileEntity, RenderParameters rp);
+	public abstract int getGuiComponent(MalisisGui gui, UIContainer container, T variant);
 
-	public abstract void renderTileEntity(AdvertRenderer renderer, AdvertTileEntity tileEntity, RenderParameters rp);
+	public abstract T getVariantFromGui(UIContainer container);
 
-	public abstract void renderAdvert(AdvertRenderer renderer, AdvertTileEntity tileEntity, RenderParameters rp);
+	public abstract void renderBlock(AdvertRenderer renderer, AdvertTileEntity tileEntity, RenderParameters rp, T variant);
+
+	public abstract void renderTileEntity(AdvertRenderer renderer, AdvertTileEntity tileEntity, RenderParameters rp, T variant);
+
+	public abstract void renderAdvert(AdvertRenderer renderer, AdvertTileEntity tileEntity, RenderParameters rp, T variant);
 
 	@Override
 	public String toString()
@@ -179,17 +184,34 @@ public abstract class AdvertModel
 		return name;
 	}
 
-	public static AdvertModel fromNBT(NBTTagCompound tagCompound)
+	public static AdvertModel getModel(String id)
 	{
-		String modelId;
-		if (tagCompound.hasKey("model", NBT.TAG_INT))
-			modelId = new String[] { "PANEL_WALL", "PANEL_SMALL_FOOT", "PANEL_FULL_FOOT" }[tagCompound.getInteger("model")];
-		else
-			modelId = tagCompound.getString("model");
-
-		AdvertModel model = MalisisAdvert.getModel(modelId);
-		if (model != null)
-			model.readFromNBT(tagCompound);
+		AdvertModel model = registry.get(id);
+		if (model == null)
+			model = registry.get("panel");
 		return model;
+	}
+
+	public static void register(AdvertModel model)
+	{
+		registry.put(model.getId(), model);
+	}
+
+	public static Collection<AdvertModel> list()
+	{
+		return registry.values();
+	}
+
+	public static interface IModelVariant
+	{
+		public boolean isWallMounted();
+
+		public void readFromNBT(NBTTagCompound tagCompound);
+
+		public void writeToNBT(NBTTagCompound tagCompound);
+
+		public void fromBytes(ByteBuf buf);
+
+		public void toBytes(ByteBuf buf);
 	}
 }

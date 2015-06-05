@@ -28,6 +28,7 @@ import io.netty.buffer.ByteBuf;
 import net.malisis.advert.MalisisAdvert;
 import net.malisis.advert.advert.AdvertSelection;
 import net.malisis.advert.model.AdvertModel;
+import net.malisis.advert.model.AdvertModel.IModelVariant;
 import net.malisis.advert.tileentity.AdvertTileEntity;
 import net.malisis.core.network.MalisisMessage;
 import net.malisis.core.util.TileEntityUtils;
@@ -58,15 +59,15 @@ public class AdvertSelectionMessage implements IMessageHandler<AdvertSelectionMe
 		if (te == null)
 			return null;
 
-		te.setModel(message.model);
+		te.setModel(message.model, message.variant);
 		te.addSelection(0, message.advertSelection);
 
 		return null;
 	}
 
-	public static void saveSelection(AdvertTileEntity tileEntity, AdvertModel model, AdvertSelection advertSelection)
+	public static void saveSelection(AdvertTileEntity tileEntity, AdvertModel model, IModelVariant variant, AdvertSelection advertSelection)
 	{
-		Packet packet = new Packet(tileEntity, model, advertSelection);
+		Packet packet = new Packet(tileEntity, model, variant, advertSelection);
 		MalisisAdvert.network.sendToServer(packet);
 	}
 
@@ -74,17 +75,19 @@ public class AdvertSelectionMessage implements IMessageHandler<AdvertSelectionMe
 	{
 		private int x, y, z;
 		private AdvertModel model;
+		private IModelVariant variant;
 		private AdvertSelection advertSelection;
 
 		public Packet()
 		{}
 
-		public Packet(AdvertTileEntity tileEntity, AdvertModel model, AdvertSelection advertSelection)
+		public Packet(AdvertTileEntity tileEntity, AdvertModel model, IModelVariant variant, AdvertSelection advertSelection)
 		{
 			this.x = tileEntity.xCoord;
 			this.y = tileEntity.yCoord;
 			this.z = tileEntity.zCoord;
 			this.model = model;
+			this.variant = variant;
 			this.advertSelection = advertSelection;
 		}
 
@@ -95,8 +98,9 @@ public class AdvertSelectionMessage implements IMessageHandler<AdvertSelectionMe
 			y = buf.readInt();
 			z = buf.readInt();
 
-			model = MalisisAdvert.getModel(ByteBufUtils.readUTF8String(buf));
-
+			model = AdvertModel.getModel(ByteBufUtils.readUTF8String(buf));
+			variant = model.defaultVariant(false);
+			variant.fromBytes(buf);
 			if (!buf.isReadable())
 				return;
 
@@ -111,7 +115,7 @@ public class AdvertSelectionMessage implements IMessageHandler<AdvertSelectionMe
 			buf.writeInt(z);
 
 			ByteBufUtils.writeUTF8String(buf, model.getId());
-
+			variant.toBytes(buf);
 			if (advertSelection != null)
 				advertSelection.toBytes(buf);
 		}
