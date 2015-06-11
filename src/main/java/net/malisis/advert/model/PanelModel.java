@@ -29,6 +29,7 @@ import io.netty.buffer.ByteBuf;
 import java.util.Arrays;
 
 import net.malisis.advert.MalisisAdvert;
+import net.malisis.advert.advert.AdvertSelection;
 import net.malisis.advert.model.PanelModel.Variant;
 import net.malisis.advert.renderer.AdvertRenderer;
 import net.malisis.advert.tileentity.AdvertTileEntity;
@@ -37,7 +38,14 @@ import net.malisis.core.client.gui.component.container.UIContainer;
 import net.malisis.core.client.gui.component.decoration.UILabel;
 import net.malisis.core.client.gui.component.interaction.UISelect;
 import net.malisis.core.renderer.RenderParameters;
+import net.malisis.core.renderer.animation.AnimationRenderer;
+import net.malisis.core.renderer.animation.transformation.ChainedTransformation;
+import net.malisis.core.renderer.animation.transformation.ITransformable;
+import net.malisis.core.renderer.animation.transformation.Transformation;
+import net.malisis.core.renderer.element.Face;
 import net.malisis.core.renderer.element.Shape;
+import net.malisis.core.renderer.element.Vertex;
+import net.malisis.core.renderer.icon.MalisisIcon;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
@@ -58,15 +66,24 @@ public class PanelModel extends AdvertModel<Variant>
 	private Shape smallFoot;
 	private Shape fullFoot;
 	private Shape panel;
-	private Shape display;
+	private Shape displayTop;
+	private Shape displayBottom;
 	private IIcon panelIcon;
+
+	private AnimationRenderer ar;
+	private Transformation topTransform;
+	private Transformation bottomTransform;
+	private MalisisIcon baseIcon;
+	private PanelData panelData;
 
 	public PanelModel()
 	{
 		this.id = "panel";
 		this.name = id;
-		this.width = 2;
-		this.height = 3;
+		this.availableSlots = 2;
+		float border = 3 / 16F;
+		this.width = 2 - 2 * border;
+		this.height = 3 - 2 * border;
 		this.objFile = new ResourceLocation(MalisisAdvert.modid, "models/panel.obj");
 		this.placeHolder = new ResourceLocation(MalisisAdvert.modid, "textures/blocks/MA23.png");
 	}
@@ -81,7 +98,24 @@ public class PanelModel extends AdvertModel<Variant>
 		smallFoot = model.getShape("SmallFoot");
 		fullFoot = model.getShape("FullFoot");
 		panel = model.getShape("Panel");
-		display = model.getShape("Advert");
+		displayTop = model.getShape("Advert");
+		displayBottom = new Shape(displayTop);
+		model.addShape(displayBottom);
+
+		ar = new AnimationRenderer();
+		baseIcon = new MalisisIcon();
+		panelData = new PanelData();
+
+		int speed = 60;//3s
+		int delay = 200;//10s
+
+		PanelTransform pt1 = new PanelTransform(true).forTicks(speed, delay).movement(Transformation.SINUSOIDAL);
+		PanelTransform pt2 = new PanelTransform(true).forTicks(speed, delay).reversed(true).movement(Transformation.SINUSOIDAL);
+		topTransform = new ChainedTransformation(pt1, pt2).loop(-1);
+
+		pt1 = new PanelTransform(false).forTicks(speed, delay).movement(Transformation.SINUSOIDAL);
+		pt2 = new PanelTransform(false).forTicks(speed, delay).reversed(true).movement(Transformation.SINUSOIDAL);
+		bottomTransform = new ChainedTransformation(pt1, pt2).loop(-1);
 	}
 
 	@Override
@@ -164,15 +198,28 @@ public class PanelModel extends AdvertModel<Variant>
 
 	@Override
 	public void renderTileEntity(AdvertRenderer renderer, AdvertTileEntity tileEntity, RenderParameters rp, Variant variant)
-	{}
-
-	@Override
-	public void renderAdvert(AdvertRenderer renderer, AdvertTileEntity tileEntity, RenderParameters rp, Variant variant)
 	{
 		if (variant.type == FootType.WALL)
-			display.translate(0, -1, -.5F);
+		{
+			displayTop.translate(0, -1, -.5F);
+			displayBottom.translate(0, -1, -.5F);
+		}
 
-		renderer.drawShape(display, rp);
+		boolean b = tileEntity.getSelection(1) != null;
+
+		renderAdvert(renderer, displayTop, tileEntity.getSelection(0), topTransform, b);
+		//displayBottom.translate(2, 0, 0);
+		if (b)
+			renderAdvert(renderer, displayBottom, tileEntity.getSelection(1), bottomTransform, b);
+	}
+
+	private void renderAdvert(AdvertRenderer renderer, Shape shape, AdvertSelection as, Transformation transform, boolean anim)
+	{
+		panelData.set(shape, as);
+		if (anim)
+			ar.animate(panelData, transform);
+		shape.applyMatrix();
+		renderer.renderAdvertFace(shape.getFaces()[0], as, panelData.icon);
 	}
 
 	public static class Variant implements AdvertModel.IModelVariant
@@ -207,6 +254,83 @@ public class PanelModel extends AdvertModel<Variant>
 		public void toBytes(ByteBuf buf)
 		{
 			buf.writeInt(type.ordinal());
+		}
+	}
+
+	private class PanelData implements ITransformable
+	{
+		private double y, Y;
+		private float v, V;
+		private Shape shape;
+		private MalisisIcon icon = new MalisisIcon();
+
+		public void set(Shape shape, AdvertSelection as)
+		{
+			this.shape = shape;
+			MalisisIcon icon = as != null ? (MalisisIcon) as.getIcon() : null;
+			if (icon == null)
+				icon = baseIcon;
+			this.icon.copyFrom(icon);
+
+			Face f = shape.getFaces()[0];
+			y = f.getVertexes()[0].getY();
+			Y = f.getVertexes()[2].getY();
+
+			v = icon.getMinV();
+			V = icon.getMaxV();
+		}
+	}
+
+	private class PanelTransform extends Transformation<PanelTransform, PanelData>
+	{
+		private boolean isTop;
+
+		public PanelTransform(boolean isTop)
+		{
+			this.isTop = isTop;
+		}
+
+		@Override
+		protected void doTransform(PanelData data, float comp)
+		{
+			if (isTop && comp == 0)
+				return;
+
+			if (!isTop && reversed && comp == 0)
+				return;
+
+			if (reversed)
+				comp = 1 - comp;
+
+			transformVertex(data, comp);
+			transformIcon(data, comp);
+		}
+
+		private void transformVertex(PanelData data, float comp)
+		{
+			double amount = (data.Y - data.y) * comp;
+
+			Face f = data.shape.getFaces()[0];
+			Vertex[] vertexes = new Vertex[] { f.getVertexes()[isTop ? 0 : 2], f.getVertexes()[isTop ? 1 : 3] };
+
+			for (Vertex v : vertexes)
+				v.setY(data.y + amount);
+		}
+
+		private void transformIcon(PanelData data, float comp)
+		{
+			float amount = (data.V - data.v) * comp;
+
+			float v = isTop ? data.v + amount : data.v;
+			float V = isTop ? data.V : data.v + amount;
+
+			data.icon.setUVs(data.icon.getMinU(), v, data.icon.getMaxU(), V);
+		}
+
+		@Override
+		public float completion(long elapsedTime)
+		{
+			return super.completion(elapsedTime);
 		}
 	}
 

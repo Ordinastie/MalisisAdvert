@@ -32,9 +32,11 @@ import net.malisis.advert.tileentity.AdvertTileEntity;
 import net.malisis.core.renderer.MalisisRenderer;
 import net.malisis.core.renderer.RenderParameters;
 import net.malisis.core.renderer.RenderType;
+import net.malisis.core.renderer.element.Face;
 import net.malisis.core.renderer.element.Shape;
 import net.malisis.core.renderer.element.shape.Cube;
 import net.malisis.core.renderer.model.MalisisModel;
+import net.minecraft.util.IIcon;
 
 /**
  * @author Ordinastie
@@ -105,32 +107,37 @@ public class AdvertRenderer extends MalisisRenderer
 
 		if (renderType == RenderType.TESR_WORLD)
 		{
-
 			advertModel.renderTileEntity(this, tileEntity, rp, tileEntity.getModelVariant());
-
-			AdvertSelection as = tileEntity.getCurrentSelection();
-			ClientAdvert advert = null;
-
-			if (as != null)
-			{
-				advert = as.getAdvert();
-				if (advert == null && !ClientAdvert.isPending())
-					tileEntity.addSelection(0, null);
-			}
-
-			if (advert != null && advert.getTexture() != null)
-			{
-				bindTexture(advert.getTexture().getResourceLocation());
-				rp.icon.set(as.getIcon());
-			}
-			else
-			{
-				bindTexture(advertModel.getPlaceHolder());
-				rp.useCustomTexture.set(true);
-				rp.icon.set(null);
-			}
-
-			advertModel.renderAdvert(this, tileEntity, rp, tileEntity.getModelVariant());
 		}
+	}
+
+	public void renderAdvertFace(Face face, AdvertSelection as)
+	{
+		renderAdvertFace(face, as, as != null ? as.getIcon() : null);
+	}
+
+	public void renderAdvertFace(Face face, AdvertSelection as, IIcon icon)
+	{
+		ClientAdvert advert = null;
+
+		if (as != null)
+		{
+			advert = as.getAdvert();
+			if (advert == null && !ClientAdvert.isPending())
+				tileEntity.addSelection(0, null);
+		}
+
+		if (advert != null && advert.getTexture() != null)
+			bindTexture(advert.getTexture().getResourceLocation());
+		else
+		{
+			bindTexture(advertModel.getPlaceHolder());
+			rp.useCustomTexture.set(true);
+			rp.icon.set(null);
+		}
+
+		face.setTexture(icon);
+		drawFace(face, rp);
+		next();
 	}
 }

@@ -30,7 +30,7 @@ malisisadvert.gui.model.BILLBOARD_WALL=Billboard (Wall)
 
 malisisadvert.gui.advertselection=Advert Selection
 malisisadvert.gui.model=Model :
-malisisadvert.gui.advert=Advert :
+malisisadvert.gui.advert=Advert
 malisisadvert.gui.clip=Clipping :
 malisisadvert.gui.from=From
 malisisadvert.gui.to=to

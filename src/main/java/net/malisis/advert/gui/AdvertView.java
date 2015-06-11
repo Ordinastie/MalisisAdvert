@@ -83,6 +83,8 @@ public class AdvertView extends UIComponent<AdvertView>
 			eX = advertSelection.getX(advertSelection.U);
 			eY = advertSelection.getY(advertSelection.V);
 		}
+		else
+			advert = null;
 	}
 
 	public float getFactor()

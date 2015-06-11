@@ -26,6 +26,7 @@ package net.malisis.advert.model;
 
 import io.netty.buffer.ByteBuf;
 import net.malisis.advert.MalisisAdvert;
+import net.malisis.advert.advert.AdvertSelection;
 import net.malisis.advert.model.TriangularColumn.Variant;
 import net.malisis.advert.renderer.AdvertRenderer;
 import net.malisis.advert.tileentity.AdvertTileEntity;
@@ -35,6 +36,7 @@ import net.malisis.core.client.gui.component.interaction.UICheckBox;
 import net.malisis.core.renderer.RenderParameters;
 import net.malisis.core.renderer.animation.AnimationRenderer;
 import net.malisis.core.renderer.animation.transformation.Rotation;
+import net.malisis.core.renderer.element.Face;
 import net.malisis.core.renderer.element.Shape;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.nbt.NBTTagCompound;
@@ -50,10 +52,10 @@ import org.lwjgl.opengl.GL11;
  */
 public class TriangularColumn extends AdvertModel<Variant>
 {
-	private static Shape base;
-	private static Shape topBottom;
-	private static Shape panels;
-	private static IIcon icon;
+	private Shape base;
+	private Shape topBottom;
+	private Shape panels;
+	private IIcon icon;
 
 	private AnimationRenderer ar;
 	private Rotation rotation;
@@ -62,6 +64,7 @@ public class TriangularColumn extends AdvertModel<Variant>
 	{
 		this.id = "triangular_column";
 		this.name = id;
+		this.availableSlots = 3;
 		this.width = 1.4F;
 		this.height = 2.5F;
 		this.objFile = new ResourceLocation(MalisisAdvert.modid, "models/triangular_column.obj");
@@ -141,15 +144,20 @@ public class TriangularColumn extends AdvertModel<Variant>
 		rp.icon.set(icon);
 		renderer.drawShape(topBottom, rp);
 		renderer.next(GL11.GL_QUADS);
-	}
 
-	@Override
-	public void renderAdvert(AdvertRenderer renderer, AdvertTileEntity tileEntity, RenderParameters rp, Variant variant)
-	{
-		//panels.resetState();
+		//render advert faces :
 		if (variant.rotate)
+		{
 			ar.animate(panels, rotation);
-		renderer.drawShape(panels, rp);
+			panels.applyMatrix();
+		}
+
+		for (int i = 0; i < panels.getFaces().length; i++)
+		{
+			Face face = panels.getFaces()[i];
+			AdvertSelection as = tileEntity.getSelection(i);
+			renderer.renderAdvertFace(face, as);
+		}
 	}
 
 	public static class Variant implements AdvertModel.IModelVariant

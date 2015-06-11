@@ -27,12 +27,18 @@ package net.malisis.advert.gui.advertselection;
 import net.malisis.advert.advert.Advert;
 import net.malisis.advert.advert.AdvertSelection;
 import net.malisis.advert.advert.ClientAdvert;
+import net.malisis.advert.gui.AdvertView;
+import net.malisis.core.client.gui.GuiRenderer;
 import net.malisis.core.client.gui.MalisisGui;
+import net.malisis.core.client.gui.component.UIComponent;
 import net.malisis.core.client.gui.component.container.UIContainer;
 import net.malisis.core.client.gui.component.decoration.UILabel;
 import net.malisis.core.client.gui.component.interaction.UIButton;
 import net.malisis.core.client.gui.component.interaction.UISelect;
 import net.malisis.core.client.gui.component.interaction.UITextField;
+import net.malisis.core.client.gui.event.component.StateChangeEvent.FocusStateChange;
+
+import org.lwjgl.opengl.GL11;
 
 import com.google.common.base.Function;
 import com.google.common.eventbus.Subscribe;
@@ -44,17 +50,22 @@ import com.google.common.eventbus.Subscribe;
 public class AdvertSelectionComponent extends UIContainer<AdvertSelectionComponent>
 {
 	private AdvertSelection advertSelection;
-
+	private AdvertView advertView;
+	private int index;
 	private UISelect<ClientAdvert> selAdvert;
 	private UITextField fromX;
 	private UITextField fromY;
 	private UITextField toX;
 	private UITextField toY;
 
-	public AdvertSelectionComponent(MalisisGui gui)
+	public AdvertSelectionComponent(MalisisGui gui, int index, AdvertView view)
 	{
 		super(gui);
 
+		setSize(0, 60);
+		setPadding(2, 2);
+		this.advertView = view;
+		this.index = index;
 		createSelect(gui);
 		createClipping(gui);
 
@@ -67,7 +78,7 @@ public class AdvertSelectionComponent extends UIContainer<AdvertSelectionCompone
 	private void createSelect(MalisisGui gui)
 	{
 		//select advert
-		UILabel labelAdvert = new UILabel(gui, "malisisadvert.gui.advert");
+		UILabel labelAdvert = new UILabel(gui, "{malisisadvert.gui.advert} " + index + " :");
 		Function<ClientAdvert, String> labelFunc = new Function<ClientAdvert, String>()
 		{
 			@Override
@@ -168,11 +179,49 @@ public class AdvertSelectionComponent extends UIContainer<AdvertSelectionCompone
 		advertSelection.setPixels(x, y, X, Y);
 	}
 
+	private boolean isSelected()
+	{
+		if (isFocused())
+			return true;
+
+		for (UIComponent c : components)
+			if (c.isFocused())
+				return true;
+		return false;
+	}
+
+	@Override
+	public boolean onClick(int x, int y)
+	{
+		advertView.setAdvertSelection(advertSelection);
+		return super.onClick(x, y);
+	}
+
+	@Override
+	public void drawBackground(GuiRenderer renderer, int mouseX, int mouseY, float partialTick)
+	{
+		if (!isSelected())
+			return;
+
+		renderer.drawRectangle(0, 0, 0, getWidth(), getHeight(), 0xBBBBEE, 255);
+		renderer.next(GL11.GL_LINE_LOOP);
+		GL11.glLineWidth(2);
+		renderer.drawRectangle(0, 0, 0, getWidth(), getHeight(), 0x000000, 255);
+		renderer.next(GL11.GL_QUADS);
+	}
+
 	@Subscribe
 	public void onSelect(UISelect.SelectEvent<Advert> event)
 	{
 		setAdvertSelection(new AdvertSelection(event.getNewValue().getId()));
-		((AdvertSelectionGui) getGui()).viewAdvertSelection(advertSelection);
+		advertView.setAdvertSelection(advertSelection);
+	}
+
+	@Subscribe
+	public void onFocus(FocusStateChange<UIComponent> event)
+	{
+		if (event.getState())
+			advertView.setAdvertSelection(advertSelection);
 	}
 
 	@Subscribe

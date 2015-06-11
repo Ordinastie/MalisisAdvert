@@ -60,14 +60,14 @@ public class AdvertSelectionMessage implements IMessageHandler<AdvertSelectionMe
 			return null;
 
 		te.setModel(message.model, message.variant);
-		te.addSelection(0, message.advertSelection);
+		te.addSelections(message.selections);
 
 		return null;
 	}
 
-	public static void saveSelection(AdvertTileEntity tileEntity, AdvertModel model, IModelVariant variant, AdvertSelection advertSelection)
+	public static void saveSelection(AdvertTileEntity tileEntity, AdvertModel model, IModelVariant variant, AdvertSelection[] selections)
 	{
-		Packet packet = new Packet(tileEntity, model, variant, advertSelection);
+		Packet packet = new Packet(tileEntity, model, variant, selections);
 		MalisisAdvert.network.sendToServer(packet);
 	}
 
@@ -76,19 +76,19 @@ public class AdvertSelectionMessage implements IMessageHandler<AdvertSelectionMe
 		private int x, y, z;
 		private AdvertModel model;
 		private IModelVariant variant;
-		private AdvertSelection advertSelection;
+		private AdvertSelection[] selections = new AdvertSelection[0];
 
 		public Packet()
 		{}
 
-		public Packet(AdvertTileEntity tileEntity, AdvertModel model, IModelVariant variant, AdvertSelection advertSelection)
+		public Packet(AdvertTileEntity tileEntity, AdvertModel model, IModelVariant variant, AdvertSelection[] selections)
 		{
 			this.x = tileEntity.xCoord;
 			this.y = tileEntity.yCoord;
 			this.z = tileEntity.zCoord;
 			this.model = model;
 			this.variant = variant;
-			this.advertSelection = advertSelection;
+			this.selections = selections;
 		}
 
 		@Override
@@ -101,10 +101,11 @@ public class AdvertSelectionMessage implements IMessageHandler<AdvertSelectionMe
 			model = AdvertModel.getModel(ByteBufUtils.readUTF8String(buf));
 			variant = model.defaultVariant(false);
 			variant.fromBytes(buf);
-			if (!buf.isReadable())
-				return;
 
-			advertSelection = AdvertSelection.fromBytes(buf);
+			selections = new AdvertSelection[model.getAvailableSlots()];
+
+			while (buf.isReadable())
+				selections[buf.readByte()] = AdvertSelection.fromBytes(buf);
 		}
 
 		@Override
@@ -116,8 +117,15 @@ public class AdvertSelectionMessage implements IMessageHandler<AdvertSelectionMe
 
 			ByteBufUtils.writeUTF8String(buf, model.getId());
 			variant.toBytes(buf);
-			if (advertSelection != null)
-				advertSelection.toBytes(buf);
+
+			for (int i = 0; i < selections.length; i++)
+			{
+				if (selections[i] != null)
+				{
+					buf.writeByte(i);
+					selections[i].toBytes(buf);
+				}
+			}
 		}
 
 	}

@@ -24,6 +24,8 @@
 
 package net.malisis.advert.tileentity;
 
+import java.util.Arrays;
+
 import net.malisis.advert.advert.AdvertSelection;
 import net.malisis.advert.model.AdvertModel;
 import net.malisis.advert.model.AdvertModel.IModelVariant;
@@ -32,6 +34,7 @@ import net.malisis.core.block.MalisisBlock;
 import net.malisis.core.util.AABBUtils;
 import net.malisis.core.util.TileEntityUtils;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
@@ -48,13 +51,11 @@ public class AdvertTileEntity extends TileEntity
 	protected AdvertModel model;
 	protected IModelVariant variant;
 	protected boolean wallMounted;
-	protected int availableSlots = 1;
-	protected AdvertSelection[] selectedAdverts;
-	protected int currentAdvert;
+	protected AdvertSelection[] selectedAdverts = new AdvertSelection[0];
 
 	public AdvertTileEntity()
 	{
-		selectedAdverts = new AdvertSelection[availableSlots];
+
 		setModel(null, null);
 	}
 
@@ -78,6 +79,11 @@ public class AdvertTileEntity extends TileEntity
 
 		this.model = model;
 		this.variant = variant;
+
+		this.selectedAdverts = Arrays.copyOf(selectedAdverts, model.getAvailableSlots());
+
+		if (getWorld() != null)
+			getWorld().markBlockForUpdate(xCoord, yCoord, zCoord);
 	}
 
 	public void setWallMounted(boolean wallMounted)
@@ -104,19 +110,34 @@ public class AdvertTileEntity extends TileEntity
 		return c;
 	}
 
-	public AdvertSelection getCurrentSelection()
+	public AdvertSelection getSelection(int index)
 	{
-		return selectedAdverts[currentAdvert];
+		if (selectedAdverts.length == 0)
+			return null;
+
+		if (index < 0 || index >= model.getAvailableSlots())
+			return null;
+
+		return selectedAdverts[index];
+	}
+
+	public AdvertSelection[] getSelections()
+	{
+		return selectedAdverts;
+	}
+
+	public void addSelections(AdvertSelection[] selections)
+	{
+		for (int i = 0; i < selections.length; i++)
+			addSelection(i, selections[i]);
 	}
 
 	public void addSelection(int index, AdvertSelection advertSelection)
 	{
-		if (index < 0 || index >= availableSlots)
+		if (index < 0 || index >= model.getAvailableSlots())
 			return;
 
 		selectedAdverts[index] = advertSelection;
-		if (getWorld() != null)
-			getWorld().markBlockForUpdate(xCoord, yCoord, zCoord);
 	}
 
 	public void removeSelection(int index)
@@ -138,11 +159,19 @@ public class AdvertTileEntity extends TileEntity
 		if (variant != null)
 			variant.writeToNBT(tagCompound);
 
-		AdvertSelection as = selectedAdverts[0];
-		if (as == null)
-			return;
+		NBTTagList asList = new NBTTagList();
+		for (int i = 0; i < selectedAdverts.length; i++)
+		{
+			if (selectedAdverts[i] != null)
+			{
+				NBTTagCompound tag = new NBTTagCompound();
+				tag.setByte("index", (byte) i);
+				selectedAdverts[i].toNBT(tag);
+				asList.appendTag(tag);
+			}
+		}
 
-		as.toNBT(tagCompound);
+		tagCompound.setTag("selections", asList);
 	}
 
 	@Override
@@ -152,13 +181,7 @@ public class AdvertTileEntity extends TileEntity
 
 		wallMounted = tagCompound.getBoolean("wall_mounted");
 
-		String modelId;
-		if (tagCompound.hasKey("model", NBT.TAG_INT))
-			modelId = new String[] { "PANEL_WALL", "PANEL_SMALL_FOOT", "PANEL_FULL_FOOT" }[tagCompound.getInteger("model")];
-		else
-			modelId = tagCompound.getString("model");
-
-		AdvertModel model = AdvertModel.getModel(modelId);
+		AdvertModel model = AdvertModel.getModel(tagCompound.getString("model"));
 		model.readFromNBT(this, tagCompound);
 
 		IModelVariant variant = model.defaultVariant(isWallMounted());
@@ -166,7 +189,12 @@ public class AdvertTileEntity extends TileEntity
 
 		setModel(model, variant);
 
-		addSelection(0, AdvertSelection.fromNBT(tagCompound));
+		NBTTagList nbttaglist = tagCompound.getTagList("selections", NBT.TAG_COMPOUND);
+		for (int i = 0; i < nbttaglist.tagCount(); ++i)
+		{
+			NBTTagCompound tag = nbttaglist.getCompoundTagAt(i);
+			addSelection(tag.getByte("index"), AdvertSelection.fromNBT(tag));
+		}
 	}
 
 	@Override

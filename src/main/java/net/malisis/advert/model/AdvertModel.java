@@ -52,6 +52,7 @@ public abstract class AdvertModel<T extends IModelVariant>
 
 	protected String id;
 	protected String name;
+	protected int availableSlots = 1;
 	protected float width;
 	protected float height;
 	protected ResourceLocation objFile;
@@ -82,6 +83,11 @@ public abstract class AdvertModel<T extends IModelVariant>
 	public void setName(String name)
 	{
 		this.name = name;
+	}
+
+	public int getAvailableSlots()
+	{
+		return availableSlots;
 	}
 
 	public float getWidth()
@@ -175,8 +181,6 @@ public abstract class AdvertModel<T extends IModelVariant>
 	public abstract void renderBlock(AdvertRenderer renderer, AdvertTileEntity tileEntity, RenderParameters rp, T variant);
 
 	public abstract void renderTileEntity(AdvertRenderer renderer, AdvertTileEntity tileEntity, RenderParameters rp, T variant);
-
-	public abstract void renderAdvert(AdvertRenderer renderer, AdvertTileEntity tileEntity, RenderParameters rp, T variant);
 
 	@Override
 	public String toString()
