@@ -122,14 +122,14 @@ public class AdvertList extends UIListContainer<AdvertList, ClientAdvert>
 		fro.fontScale = 2F / 3F;
 		String dim = current.getWidth() + "x" + current.getHeight();
 		renderer.drawText(font, dim, x, 5, 0, fro);
-		x += font.getStringWidth(dim, 2F / 3F) + 3;
+		x += font.getStringWidth(dim, fro) + 3;
 
 		//File size
 		String size = FileUtils.byteCountToDisplaySize(current.getSize());
 		renderer.drawText(font, "(" + size + ")", x, 5, 0, fro);
 
 		//URL
-		String url = font.clipString(current.getUrl(), getWidth() - 6, 2F / 3F, true);
+		String url = font.clipString(current.getUrl(), getWidth() - 6, fro, true);
 		renderer.drawText(font, url, 2, 13, 0, fro);
 	}
 }
