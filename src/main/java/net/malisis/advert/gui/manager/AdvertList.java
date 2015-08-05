@@ -112,14 +112,16 @@ public class AdvertList extends UIListContainer<AdvertList, ClientAdvert>
 		fro.color = isHovered ? 0xFFFF99 : 0xFFFFFF;
 		fro.shadow = true;
 		fro.fontScale = 1;
+		fro.saveDefault();
 		renderer.drawText(font, current.getName(), x, 2, 0, fro);
-		x += font.getStringWidth(current.getName()) + 6;
+		x += font.getStringWidth(current.getName(), fro) + 6;
 
 		//Image Dimensions
 		x = Math.max(70, x);
 		fro.color = isHovered ? 0x666666 : 0x444444;
 		fro.shadow = false;
 		fro.fontScale = 2F / 3F;
+		fro.saveDefault();
 		String dim = current.getWidth() + "x" + current.getHeight();
 		renderer.drawText(font, dim, x, 5, 0, fro);
 		x += font.getStringWidth(dim, fro) + 3;
