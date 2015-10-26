@@ -139,11 +139,10 @@ public class AdvertBlock extends MalisisBlock implements ITileEntityProvider, IC
 	{
 		int[] dirs = { 2, 0, 1, 3 };
 		AdvertTileEntity te = TileEntityUtils.getTileEntity(AdvertTileEntity.class, world, x, y, z);
-		if (te == null || te.getModel() == null)
-			return new AxisAlignedBB[] { AxisAlignedBB.getBoundingBox(0, 0, 0, 1, 1, 1) };
+		if (te == null || te.getModel() == null || te.getBlockMetadata() < 0 || te.getBlockMetadata() > dirs.length)
+			return AABBUtils.identities();
 
 		AxisAlignedBB[] aabbs = te.getModel().getBoundingBox(te.getModelVariant());
-
 		return AABBUtils.rotate(aabbs, dirs[te.getBlockMetadata()]);
 	}
 
