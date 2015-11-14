@@ -25,100 +25,84 @@
 package net.malisis.advert.block;
 
 import net.malisis.advert.MalisisAdvert;
-import net.malisis.advert.model.AdvertModel;
 import net.malisis.advert.network.AdvertGuiMessage;
+import net.malisis.advert.renderer.AdvertRenderer;
 import net.malisis.advert.tileentity.AdvertTileEntity;
 import net.malisis.core.block.BoundingBoxType;
+import net.malisis.core.block.IBlockDirectional;
 import net.malisis.core.block.MalisisBlock;
+import net.malisis.core.renderer.DefaultRenderer;
+import net.malisis.core.renderer.MalisisRendered;
 import net.malisis.core.util.AABBUtils;
 import net.malisis.core.util.EntityUtils;
 import net.malisis.core.util.TileEntityUtils;
 import net.malisis.core.util.chunkcollision.IChunkCollidable;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.block.properties.PropertyBool;
+import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.IIcon;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
 
 /**
  * @author Ordinastie
  *
  */
-public class AdvertBlock extends MalisisBlock implements ITileEntityProvider, IChunkCollidable
+@MalisisRendered(block = AdvertRenderer.class, item = DefaultRenderer.Block.class)
+public class AdvertBlock extends MalisisBlock implements ITileEntityProvider, IChunkCollidable, IBlockDirectional
 {
-	public static int renderId = -1;
-
-	public static final int DIR_NORTH = 0;
-	public static final int DIR_SOUTH = 1;
-	public static final int DIR_WEST = 2;
-	public static final int DIR_EAST = 3;
-
-	private IIcon panelIcon;
+	public static final PropertyBool WALL = PropertyBool.create("wall");
 
 	public AdvertBlock()
 	{
 		super(Material.iron);
 		setResistance(6000);
 		setHardness(6000);
-		setUnlocalizedName("advertBlock");
+		setName("advertBlock");
 		setCreativeTab(MalisisAdvert.tab);
+		setTexture(MalisisAdvert.modid + ":blocks/MA");
 	}
 
 	@Override
-	public void registerIcons(IIconRegister register)
+	protected BlockState createBlockState()
 	{
-		blockIcon = register.registerIcon("malisisadvert:MA");
-		for (AdvertModel model : AdvertModel.list())
-			model.registerIcons(register);
-	}
-
-	public IIcon getPanelIcon()
-	{
-		return panelIcon;
+		return new BlockState(this, HORIZONTAL, WALL);
 	}
 
 	@Override
-	public int onBlockPlaced(World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ, int metadata)
+	public IBlockState onBlockPlaced(World world, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
 	{
-		return side;
+		EnumFacing dir = facing == EnumFacing.UP ? EntityUtils.getEntityFacing(placer).getOpposite() : facing;
+		return getDefaultState().withProperty(HORIZONTAL, dir).withProperty(WALL, facing != EnumFacing.UP);
 	}
 
 	@Override
-	public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase player, ItemStack itemStack)
+	public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
 	{
-		AdvertTileEntity te = TileEntityUtils.getTileEntity(AdvertTileEntity.class, world, x, y, z);
+		AdvertTileEntity te = TileEntityUtils.getTileEntity(AdvertTileEntity.class, world, pos);
 		if (te == null)
 			return;
 
-		int metadata = world.getBlockMetadata(x, y, z);
-		ForgeDirection dir = EntityUtils.getEntityFacing(player);
-
-		//placed against a wall
-		if (metadata != 1)
-		{
-			te.setWallMounted(true);
-			dir = ForgeDirection.getOrientation(metadata).getOpposite();
-		}
+		te.setWallMounted((boolean) state.getValue(WALL));
 		te.setModel(null, null);
-		world.setBlockMetadataWithNotify(x, y, z, dir.ordinal() - 2, 3);
-
 	}
 
 	@Override
-	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ)
+	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float hitX, float hitY, float hitZ)
 	{
 		if (world.isRemote)
 			return true;
 
-		AdvertTileEntity te = TileEntityUtils.getTileEntity(AdvertTileEntity.class, world, x, y, z);
+		AdvertTileEntity te = TileEntityUtils.getTileEntity(AdvertTileEntity.class, world, pos);
 		if (te == null || !player.canCommandSenderUseCommand(0, "malisisadvert"))
 			return true;
 
@@ -128,28 +112,34 @@ public class AdvertBlock extends MalisisBlock implements ITileEntityProvider, IC
 	}
 
 	@Override
-	public AxisAlignedBB[] getPlacedBoundingBox(IBlockAccess world, int x, int y, int z, int side, EntityPlayer entity, ItemStack itemStack)
+	public AxisAlignedBB[] getBoundingBoxes(IBlockAccess world, BlockPos pos, BoundingBoxType type)
 	{
-		//No point in checking collision here because model can be changed afterwards anyway
-		return null;
-	}
-
-	@Override
-	public AxisAlignedBB[] getBoundingBox(IBlockAccess world, int x, int y, int z, BoundingBoxType type)
-	{
-		int[] dirs = { 2, 0, 1, 3 };
-		AdvertTileEntity te = TileEntityUtils.getTileEntity(AdvertTileEntity.class, world, x, y, z);
-		if (te == null || te.getModel() == null || te.getBlockMetadata() < 0 || te.getBlockMetadata() > dirs.length)
+		if (type == BoundingBoxType.PLACEDBOUNDINGBOX)
 			return AABBUtils.identities();
 
-		AxisAlignedBB[] aabbs = te.getModel().getBoundingBox(te.getModelVariant());
-		return AABBUtils.rotate(aabbs, dirs[te.getBlockMetadata()]);
+		AdvertTileEntity te = TileEntityUtils.getTileEntity(AdvertTileEntity.class, world, pos);
+		if (te == null || te.getModel() == null)
+			return AABBUtils.identities();
+
+		return te.getModel().getBoundingBox(te.getModelVariant());
 	}
 
 	@Override
 	public TileEntity createNewTileEntity(World world, int metadata)
 	{
 		return new AdvertTileEntity();
+	}
+
+	@Override
+	public IBlockState getStateFromMeta(int meta)
+	{
+		return super.getStateFromMeta(meta).withProperty(WALL, (meta & 8) != 0);
+	}
+
+	@Override
+	public int getMetaFromState(IBlockState state)
+	{
+		return super.getMetaFromState(state) + ((boolean) state.getValue(WALL) ? 8 : 0);
 	}
 
 	@Override
@@ -165,15 +155,8 @@ public class AdvertBlock extends MalisisBlock implements ITileEntityProvider, IC
 	}
 
 	@Override
-	public int getRenderType()
-	{
-		return renderId;
-	}
-
-	@Override
 	public int blockRange()
 	{
 		return 3;
 	}
-
 }

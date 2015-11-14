@@ -48,7 +48,9 @@ import javax.imageio.ImageIO;
 
 import net.malisis.advert.MalisisAdvert;
 import net.malisis.advert.network.AdvertDownloadMessage;
+import net.malisis.core.MalisisCore;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraftforge.fml.common.network.ByteBufUtils;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -57,8 +59,6 @@ import com.google.common.io.Resources;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
-
-import cpw.mods.fml.common.network.ByteBufUtils;
 
 /**
  * @author Ordinastie
@@ -174,6 +174,7 @@ public class ServerAdvert extends Advert
 				try
 				{
 					byte[] img = Resources.toByteArray(new URL(url));
+					MalisisCore.message(img.length);
 					try (FileOutputStream fos = new FileOutputStream(file))
 					{
 						fos.write(img);

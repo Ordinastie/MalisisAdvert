@@ -46,10 +46,9 @@ import net.malisis.core.renderer.element.Face;
 import net.malisis.core.renderer.element.Shape;
 import net.malisis.core.renderer.element.Vertex;
 import net.malisis.core.renderer.icon.MalisisIcon;
-import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.IIcon;
 import net.minecraft.util.ResourceLocation;
 
 /**
@@ -68,7 +67,7 @@ public class PanelModel extends AdvertModel<Variant>
 	private Shape panel;
 	private Shape displayTop;
 	private Shape displayBottom;
-	private IIcon panelIcon;
+	private MalisisIcon panelIcon = new MalisisIcon(MalisisAdvert.modid + ":blocks/panel");
 
 	private AnimationRenderer ar;
 	private Transformation topTransform;
@@ -91,9 +90,6 @@ public class PanelModel extends AdvertModel<Variant>
 	@Override
 	public void loadModelFile()
 	{
-		if (loaded)
-			return;
-
 		super.loadModelFile();
 		smallFoot = model.getShape("SmallFoot");
 		fullFoot = model.getShape("FullFoot");
@@ -119,9 +115,9 @@ public class PanelModel extends AdvertModel<Variant>
 	}
 
 	@Override
-	public void registerIcons(IIconRegister register)
+	public void registerIcons(TextureMap map)
 	{
-		panelIcon = register.registerIcon("malisisadvert:panel");
+		panelIcon = panelIcon.register(map);
 	}
 
 	@Override
@@ -136,19 +132,16 @@ public class PanelModel extends AdvertModel<Variant>
 	public AxisAlignedBB[] getBoundingBox(Variant variant)
 	{
 		float w = 3F / 16F;
-		AxisAlignedBB foot = AxisAlignedBB.getBoundingBox(0.375F, 0, 0.5F - w, 0.625F, 1, 0.5F);
-		AxisAlignedBB panel = AxisAlignedBB.getBoundingBox(-0.5F, 0, 0.5F - w, 1.5F, 3, 0.5F);
+		AxisAlignedBB foot = new AxisAlignedBB(0.375F, 0, 0.5F, 0.625F, 1, 0.5F + w);
+		AxisAlignedBB panel = new AxisAlignedBB(-0.5F, 0, 0.5F, 1.5F, variant.type == FootType.FULL ? 4 : 3, 0.5F + w);
 
 		if (variant.type == FootType.WALL)
-			panel.offset(0, 0, 0.5F);
-
-		if (variant.type == FootType.FULL)
-			panel.maxY++;
+			panel = panel.offset(0, 0, -0.5F);
 
 		AxisAlignedBB[] aabbs;
 		if (variant.type == FootType.SMALL)
 		{
-			panel.offset(0, 1, 0);
+			panel = panel.offset(0, 1, 0);
 			aabbs = new AxisAlignedBB[] { foot, panel };
 		}
 		else

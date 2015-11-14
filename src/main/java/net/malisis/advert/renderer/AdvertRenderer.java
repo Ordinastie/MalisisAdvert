@@ -26,17 +26,19 @@ package net.malisis.advert.renderer;
 
 import net.malisis.advert.advert.AdvertSelection;
 import net.malisis.advert.advert.ClientAdvert;
-import net.malisis.advert.block.AdvertBlock;
 import net.malisis.advert.model.AdvertModel;
 import net.malisis.advert.tileentity.AdvertTileEntity;
+import net.malisis.core.block.IBlockDirectional;
 import net.malisis.core.renderer.MalisisRenderer;
 import net.malisis.core.renderer.RenderParameters;
 import net.malisis.core.renderer.RenderType;
 import net.malisis.core.renderer.element.Face;
 import net.malisis.core.renderer.element.Shape;
 import net.malisis.core.renderer.element.shape.Cube;
+import net.malisis.core.renderer.icon.MalisisIcon;
 import net.malisis.core.renderer.model.MalisisModel;
-import net.minecraft.util.IIcon;
+import net.malisis.core.util.EnumFacingUtils;
+import net.minecraft.util.EnumFacing;
 
 /**
  * @author Ordinastie
@@ -46,40 +48,23 @@ public class AdvertRenderer extends MalisisRenderer
 {
 	private AdvertModel advertModel;
 	private MalisisModel model;
-	private Shape cube;
+	private Shape cube = new Cube();
+	private RenderParameters rp = new RenderParameters();
 
 	private AdvertTileEntity tileEntity;
 
-	@Override
-	protected void initialize()
+	public AdvertRenderer()
 	{
-		cube = new Cube();
-		rp = new RenderParameters();
-	}
-
-	private int getRotation()
-	{
-		switch (blockMetadata & 3)
-		{
-			case AdvertBlock.DIR_SOUTH:
-				return 180;
-			case AdvertBlock.DIR_EAST:
-				return 270;
-			case AdvertBlock.DIR_WEST:
-				return 90;
-			case AdvertBlock.DIR_NORTH:
-			default:
-				return 0;
-		}
+		registerFor(AdvertTileEntity.class);
 	}
 
 	@Override
 	public void render()
 	{
 		rp.icon.reset();
-		rp.useCustomTexture.reset();
+		rp.applyTexture.reset();
 
-		if (renderType == RenderType.ISBRH_INVENTORY)
+		if (renderType == RenderType.ITEM)
 		{
 			drawShape(cube, rp);
 			return;
@@ -88,24 +73,24 @@ public class AdvertRenderer extends MalisisRenderer
 		tileEntity = (AdvertTileEntity) super.tileEntity;
 		if (tileEntity == null || tileEntity.getModel() == null)
 		{
-			if (renderType == RenderType.ISBRH_WORLD)
+			if (renderType == RenderType.BLOCK)
 				drawShape(cube, rp);
 			return;
 		}
 
 		advertModel = tileEntity.getModel();
-		advertModel.loadModelFile();
 		model = advertModel.getModel();
 		model.resetState();
-		model.rotate(getRotation(), 0, 1, 0, 0, 0, 0);
+		EnumFacing dir = IBlockDirectional.getDirection(blockState);
+		model.rotate(EnumFacingUtils.getRotationCount(dir) * 90, 0, 1, 0, 0, 0, 0);
 
-		if (renderType == RenderType.ISBRH_WORLD)
+		if (renderType == RenderType.BLOCK)
 		{
 			advertModel.renderBlock(this, tileEntity, rp, tileEntity.getModelVariant());
 			return;
 		}
 
-		if (renderType == RenderType.TESR_WORLD)
+		if (renderType == RenderType.TILE_ENTITY)
 		{
 			advertModel.renderTileEntity(this, tileEntity, rp, tileEntity.getModelVariant());
 		}
@@ -116,7 +101,7 @@ public class AdvertRenderer extends MalisisRenderer
 		renderAdvertFace(face, as, as != null ? as.getIcon() : null);
 	}
 
-	public void renderAdvertFace(Face face, AdvertSelection as, IIcon icon)
+	public void renderAdvertFace(Face face, AdvertSelection as, MalisisIcon icon)
 	{
 		ClientAdvert advert = null;
 
@@ -127,12 +112,13 @@ public class AdvertRenderer extends MalisisRenderer
 				tileEntity.addSelection(0, null);
 		}
 
+		rp.applyTexture.set(false);
 		if (advert != null && advert.getTexture() != null)
 			bindTexture(advert.getTexture().getResourceLocation());
 		else
 		{
 			bindTexture(advertModel.getPlaceHolder());
-			rp.useCustomTexture.set(true);
+
 			rp.icon.set(null);
 		}
 

@@ -30,18 +30,18 @@ import net.malisis.advert.advert.Advert;
 import net.malisis.advert.advert.ClientAdvert;
 import net.malisis.advert.advert.ServerAdvert;
 import net.malisis.advert.network.AdvertDeleteMessage.DeletePacket;
+import net.malisis.core.network.IMalisisMessageHandler;
 import net.malisis.core.network.MalisisMessage;
-import cpw.mods.fml.common.network.simpleimpl.IMessage;
-import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
-import cpw.mods.fml.common.network.simpleimpl.MessageContext;
-import cpw.mods.fml.relauncher.Side;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.relauncher.Side;
 
 /**
  * @author Ordinastie
  *
  */
 @MalisisMessage
-public class AdvertDeleteMessage implements IMessageHandler<DeletePacket, IMessage>
+public class AdvertDeleteMessage implements IMalisisMessageHandler<DeletePacket, IMessage>
 {
 	public AdvertDeleteMessage()
 	{
@@ -50,7 +50,7 @@ public class AdvertDeleteMessage implements IMessageHandler<DeletePacket, IMessa
 	}
 
 	@Override
-	public IMessage onMessage(DeletePacket message, MessageContext ctx)
+	public void process(DeletePacket message, MessageContext ctx)
 	{
 		Advert advert;
 		if (ctx.side == Side.SERVER)
@@ -59,13 +59,11 @@ public class AdvertDeleteMessage implements IMessageHandler<DeletePacket, IMessa
 			advert = ClientAdvert.get(message.id);
 
 		if (advert == null)
-			return null;
+			return;
 		advert.delete();
 
 		if (ctx.side == Side.SERVER)
 			sendDelete(advert);
-
-		return null;
 	}
 
 	public static void queryDelete(Advert advert)

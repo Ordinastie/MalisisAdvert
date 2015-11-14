@@ -32,19 +32,19 @@ import net.malisis.advert.MalisisAdvert;
 import net.malisis.advert.advert.Advert;
 import net.malisis.advert.advert.ClientAdvert;
 import net.malisis.advert.advert.ServerAdvert;
+import net.malisis.core.network.IMalisisMessageHandler;
 import net.malisis.core.network.MalisisMessage;
 import net.minecraft.entity.player.EntityPlayerMP;
-import cpw.mods.fml.common.network.simpleimpl.IMessage;
-import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
-import cpw.mods.fml.common.network.simpleimpl.MessageContext;
-import cpw.mods.fml.relauncher.Side;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.relauncher.Side;
 
 /**
  * @author Ordinastie
  *
  */
 @MalisisMessage
-public class AdvertListMessage implements IMessageHandler<IMessage, IMessage>
+public class AdvertListMessage implements IMalisisMessageHandler<IMessage, IMessage>
 {
 	public AdvertListMessage()
 	{
@@ -53,7 +53,7 @@ public class AdvertListMessage implements IMessageHandler<IMessage, IMessage>
 	}
 
 	@Override
-	public IMessage onMessage(IMessage message, MessageContext ctx)
+	public void process(IMessage message, MessageContext ctx)
 	{
 		if (message instanceof Query && ctx.side == Side.SERVER)
 		{
@@ -65,8 +65,6 @@ public class AdvertListMessage implements IMessageHandler<IMessage, IMessage>
 		{
 			ClientAdvert.setAdvertList((ClientAdvert[]) ((Response) message).ads);
 		}
-
-		return null;
 	}
 
 	public static void queryList()

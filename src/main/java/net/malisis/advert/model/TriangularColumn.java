@@ -38,10 +38,10 @@ import net.malisis.core.renderer.animation.AnimationRenderer;
 import net.malisis.core.renderer.animation.transformation.Rotation;
 import net.malisis.core.renderer.element.Face;
 import net.malisis.core.renderer.element.Shape;
-import net.minecraft.client.renderer.texture.IIconRegister;
+import net.malisis.core.renderer.icon.MalisisIcon;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.IIcon;
 import net.minecraft.util.ResourceLocation;
 
 import org.lwjgl.opengl.GL11;
@@ -55,7 +55,7 @@ public class TriangularColumn extends AdvertModel<Variant>
 	private Shape base;
 	private Shape topBottom;
 	private Shape panels;
-	private IIcon icon;
+	private MalisisIcon icon = new MalisisIcon(MalisisAdvert.modid + ":blocks/triangular_column");
 
 	private AnimationRenderer ar;
 	private Rotation rotation;
@@ -74,10 +74,6 @@ public class TriangularColumn extends AdvertModel<Variant>
 	@Override
 	public void loadModelFile()
 	{
-		//loaded = false;
-		if (loaded)
-			return;
-
 		super.loadModelFile();
 
 		base = model.getShape("base");
@@ -94,15 +90,15 @@ public class TriangularColumn extends AdvertModel<Variant>
 	}
 
 	@Override
-	public void registerIcons(IIconRegister register)
+	public void registerIcons(TextureMap map)
 	{
-		icon = register.registerIcon("malisisadvert:triangular_column");
+		icon = icon.register(map);
 	}
 
 	@Override
 	public AxisAlignedBB[] getBoundingBox(Variant variant)
 	{
-		AxisAlignedBB aabb = AxisAlignedBB.getBoundingBox(-0.2F, 0, 0.1F, 1.2F, 3, 1.3F);
+		AxisAlignedBB aabb = new AxisAlignedBB(-0.2F, 0, 0.9F, 1.2F, 3, -0.3F);
 		return new AxisAlignedBB[] { aabb };
 	}
 

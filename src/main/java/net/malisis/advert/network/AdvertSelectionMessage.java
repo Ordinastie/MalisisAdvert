@@ -30,21 +30,22 @@ import net.malisis.advert.advert.AdvertSelection;
 import net.malisis.advert.model.AdvertModel;
 import net.malisis.advert.model.AdvertModel.IModelVariant;
 import net.malisis.advert.tileentity.AdvertTileEntity;
+import net.malisis.core.network.IMalisisMessageHandler;
 import net.malisis.core.network.MalisisMessage;
 import net.malisis.core.util.TileEntityUtils;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
-import cpw.mods.fml.common.network.ByteBufUtils;
-import cpw.mods.fml.common.network.simpleimpl.IMessage;
-import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
-import cpw.mods.fml.common.network.simpleimpl.MessageContext;
-import cpw.mods.fml.relauncher.Side;
+import net.minecraftforge.fml.common.network.ByteBufUtils;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.relauncher.Side;
 
 /**
  * @author Ordinastie
  *
  */
 @MalisisMessage
-public class AdvertSelectionMessage implements IMessageHandler<AdvertSelectionMessage.Packet, IMessage>
+public class AdvertSelectionMessage implements IMalisisMessageHandler<AdvertSelectionMessage.Packet, IMessage>
 {
 	public AdvertSelectionMessage()
 	{
@@ -52,17 +53,15 @@ public class AdvertSelectionMessage implements IMessageHandler<AdvertSelectionMe
 	}
 
 	@Override
-	public IMessage onMessage(Packet message, MessageContext ctx)
+	public void process(Packet message, MessageContext ctx)
 	{
 		World world = ctx.getServerHandler().playerEntity.worldObj;
-		AdvertTileEntity te = TileEntityUtils.getTileEntity(AdvertTileEntity.class, world, message.x, message.y, message.z);
+		AdvertTileEntity te = TileEntityUtils.getTileEntity(AdvertTileEntity.class, world, message.pos);
 		if (te == null)
-			return null;
+			return;
 
 		te.setModel(message.model, message.variant);
 		te.addSelections(message.selections);
-
-		return null;
 	}
 
 	public static void saveSelection(AdvertTileEntity tileEntity, AdvertModel model, IModelVariant variant, AdvertSelection[] selections)
@@ -73,7 +72,7 @@ public class AdvertSelectionMessage implements IMessageHandler<AdvertSelectionMe
 
 	public static class Packet implements IMessage
 	{
-		private int x, y, z;
+		private BlockPos pos;
 		private AdvertModel model;
 		private IModelVariant variant;
 		private AdvertSelection[] selections = new AdvertSelection[0];
@@ -83,9 +82,7 @@ public class AdvertSelectionMessage implements IMessageHandler<AdvertSelectionMe
 
 		public Packet(AdvertTileEntity tileEntity, AdvertModel model, IModelVariant variant, AdvertSelection[] selections)
 		{
-			this.x = tileEntity.xCoord;
-			this.y = tileEntity.yCoord;
-			this.z = tileEntity.zCoord;
+			this.pos = tileEntity.getPos();
 			this.model = model;
 			this.variant = variant;
 			this.selections = selections;
@@ -94,9 +91,7 @@ public class AdvertSelectionMessage implements IMessageHandler<AdvertSelectionMe
 		@Override
 		public void fromBytes(ByteBuf buf)
 		{
-			x = buf.readInt();
-			y = buf.readInt();
-			z = buf.readInt();
+			pos = BlockPos.fromLong(buf.readLong());
 
 			model = AdvertModel.getModel(ByteBufUtils.readUTF8String(buf));
 			variant = model.defaultVariant(false);
@@ -111,9 +106,7 @@ public class AdvertSelectionMessage implements IMessageHandler<AdvertSelectionMe
 		@Override
 		public void toBytes(ByteBuf buf)
 		{
-			buf.writeInt(x);
-			buf.writeInt(y);
-			buf.writeInt(z);
+			buf.writeLong(pos.toLong());
 
 			ByteBufUtils.writeUTF8String(buf, model.getId());
 			variant.toBytes(buf);

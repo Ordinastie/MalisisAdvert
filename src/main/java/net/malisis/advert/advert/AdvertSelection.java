@@ -27,9 +27,8 @@ package net.malisis.advert.advert;
 import io.netty.buffer.ByteBuf;
 import net.malisis.core.renderer.icon.MalisisIcon;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.IIcon;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
  * @author Ordinastie
@@ -38,7 +37,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 public class AdvertSelection
 {
 	public int id;
-	public IIcon icon;
+	public MalisisIcon icon;
 	public float u = 0;
 	public float v = 0;
 	public float U = 1;
@@ -69,7 +68,7 @@ public class AdvertSelection
 	}
 
 	@SideOnly(Side.CLIENT)
-	public IIcon getIcon()
+	public MalisisIcon getIcon()
 	{
 		if (icon == null)
 			icon = new MalisisIcon("AS." + id, u, v, U, V);

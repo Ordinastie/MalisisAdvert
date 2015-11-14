@@ -29,9 +29,6 @@ import java.util.Arrays;
 import net.malisis.advert.advert.AdvertSelection;
 import net.malisis.advert.model.AdvertModel;
 import net.malisis.advert.model.AdvertModel.IModelVariant;
-import net.malisis.core.block.BoundingBoxType;
-import net.malisis.core.block.MalisisBlock;
-import net.malisis.core.util.AABBUtils;
 import net.malisis.core.util.TileEntityUtils;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -83,7 +80,7 @@ public class AdvertTileEntity extends TileEntity
 		this.selectedAdverts = Arrays.copyOf(selectedAdverts, model.getAvailableSlots());
 
 		if (getWorld() != null)
-			getWorld().markBlockForUpdate(xCoord, yCoord, zCoord);
+			getWorld().markBlockForUpdate(pos);
 	}
 
 	public void setWallMounted(boolean wallMounted)
@@ -202,7 +199,7 @@ public class AdvertTileEntity extends TileEntity
 	{
 		NBTTagCompound nbt = new NBTTagCompound();
 		this.writeToNBT(nbt);
-		return new S35PacketUpdateTileEntity(this.xCoord, this.yCoord, this.zCoord, 0, nbt);
+		return new S35PacketUpdateTileEntity(pos, 0, nbt);
 	}
 
 	@Override
@@ -215,9 +212,6 @@ public class AdvertTileEntity extends TileEntity
 	@Override
 	public AxisAlignedBB getRenderBoundingBox()
 	{
-		return AABBUtils
-				.combine(((MalisisBlock) getBlockType()).getBoundingBox(getWorld(), xCoord, yCoord, zCoord, BoundingBoxType.RENDER))
-				.offset(xCoord, yCoord, zCoord);
+		return TileEntityUtils.getRenderingBounds(this);
 	}
-
 }

@@ -29,21 +29,22 @@ import net.malisis.advert.MalisisAdvert;
 import net.malisis.advert.gui.advertselection.AdvertSelectionGui;
 import net.malisis.advert.gui.manager.AdvertManagerGui;
 import net.malisis.advert.tileentity.AdvertTileEntity;
+import net.malisis.core.network.IMalisisMessageHandler;
 import net.malisis.core.network.MalisisMessage;
 import net.malisis.core.util.TileEntityUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayerMP;
-import cpw.mods.fml.common.network.simpleimpl.IMessage;
-import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
-import cpw.mods.fml.common.network.simpleimpl.MessageContext;
-import cpw.mods.fml.relauncher.Side;
+import net.minecraft.util.BlockPos;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.relauncher.Side;
 
 /**
  * @author Ordinastie
  *
  */
 @MalisisMessage
-public class AdvertGuiMessage implements IMessageHandler<AdvertGuiMessage.Packet, IMessage>
+public class AdvertGuiMessage implements IMalisisMessageHandler<AdvertGuiMessage.Packet, IMessage>
 {
 	public static int ADVERTMANAGER = 1;
 	public static int ADVERTSELECTION = 2;
@@ -54,21 +55,17 @@ public class AdvertGuiMessage implements IMessageHandler<AdvertGuiMessage.Packet
 	}
 
 	@Override
-	public IMessage onMessage(AdvertGuiMessage.Packet message, MessageContext ctx)
+	public void process(Packet message, MessageContext ctx)
 	{
 		if (message.type == ADVERTMANAGER)
 			new AdvertManagerGui().display();
 		if (message.type == ADVERTSELECTION)
 		{
 			AdvertTileEntity tileEntity = TileEntityUtils.getTileEntity(AdvertTileEntity.class, Minecraft.getMinecraft().theWorld,
-					message.x, message.y, message.z);
-			if (tileEntity == null)
-				return null;
-
-			new AdvertSelectionGui(tileEntity).display();
+					message.pos);
+			if (tileEntity != null)
+				new AdvertSelectionGui(tileEntity).display();
 		}
-
-		return null;
 	}
 
 	public static void openManager(EntityPlayerMP player)
@@ -84,7 +81,7 @@ public class AdvertGuiMessage implements IMessageHandler<AdvertGuiMessage.Packet
 	public static class Packet implements IMessage
 	{
 		private int type;
-		private int x, y, z;
+		private BlockPos pos;
 
 		public Packet()
 		{}
@@ -95,10 +92,7 @@ public class AdvertGuiMessage implements IMessageHandler<AdvertGuiMessage.Packet
 			if (type == ADVERTMANAGER)
 				return;
 
-			this.x = tileEntity.xCoord;
-			this.y = tileEntity.yCoord;
-			this.z = tileEntity.zCoord;
-
+			this.pos = tileEntity.getPos();
 		}
 
 		@Override
@@ -108,9 +102,7 @@ public class AdvertGuiMessage implements IMessageHandler<AdvertGuiMessage.Packet
 			if (type == ADVERTMANAGER)
 				return;
 
-			this.x = buf.readInt();
-			this.y = buf.readInt();
-			this.z = buf.readInt();
+			pos = BlockPos.fromLong(buf.readLong());
 		}
 
 		@Override
@@ -120,9 +112,7 @@ public class AdvertGuiMessage implements IMessageHandler<AdvertGuiMessage.Packet
 			if (type == ADVERTMANAGER)
 				return;
 
-			buf.writeInt(x);
-			buf.writeInt(y);
-			buf.writeInt(z);
+			buf.writeLong(pos.toLong());
 		}
 	}
 

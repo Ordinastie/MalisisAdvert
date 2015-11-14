@@ -5,23 +5,20 @@ import net.malisis.advert.block.AdvertBlock;
 import net.malisis.advert.model.AdvertModel;
 import net.malisis.advert.model.PanelModel;
 import net.malisis.advert.model.TriangularColumn;
-import net.malisis.advert.renderer.AdvertRenderer;
 import net.malisis.advert.tileentity.AdvertTileEntity;
 import net.malisis.core.IMalisisMod;
 import net.malisis.core.MalisisCore;
 import net.malisis.core.configuration.Settings;
 import net.malisis.core.network.MalisisNetwork;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.Mod.EventHandler;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.Mod.EventHandler;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.event.FMLServerStartingEvent;
-import cpw.mods.fml.common.registry.GameRegistry;
-import cpw.mods.fml.relauncher.Side;
 
 @Mod(modid = MalisisAdvert.modid, name = MalisisAdvert.modname, version = MalisisAdvert.version, dependencies = "required-after:malisiscore")
 public class MalisisAdvert implements IMalisisMod
@@ -78,12 +75,6 @@ public class MalisisAdvert implements IMalisisMod
 		GameRegistry.registerTileEntity(AdvertTileEntity.class, "advertTileEntity");
 
 		registerModels();
-
-		if (event.getSide() == Side.CLIENT)
-		{
-			AdvertRenderer wpr = new AdvertRenderer();
-			wpr.registerFor(AdvertBlock.class, AdvertTileEntity.class);
-		}
 	}
 
 	private void registerModels()

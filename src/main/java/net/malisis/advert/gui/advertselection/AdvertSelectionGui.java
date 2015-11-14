@@ -65,7 +65,6 @@ public class AdvertSelectionGui extends MalisisGui
 	public AdvertSelectionGui(AdvertTileEntity tileEntity)
 	{
 		this.tileEntity = tileEntity;
-		TileEntityUtils.linkTileEntityToGui(tileEntity, this);
 	}
 
 	@Override
@@ -120,7 +119,7 @@ public class AdvertSelectionGui extends MalisisGui
 		window.add(left, right, btnSave, btnClose);
 
 		addToScreen(window);
-		updateGui();
+		TileEntityUtils.linkTileEntityToGui(tileEntity, this);
 	}
 
 	public void viewAdvertSelection(AdvertSelection advertSelection)

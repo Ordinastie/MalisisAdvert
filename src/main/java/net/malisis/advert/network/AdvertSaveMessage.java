@@ -29,19 +29,19 @@ import net.malisis.advert.MalisisAdvert;
 import net.malisis.advert.advert.Advert;
 import net.malisis.advert.advert.ServerAdvert;
 import net.malisis.advert.network.AdvertSaveMessage.SavePacket;
+import net.malisis.core.network.IMalisisMessageHandler;
 import net.malisis.core.network.MalisisMessage;
-import cpw.mods.fml.common.network.ByteBufUtils;
-import cpw.mods.fml.common.network.simpleimpl.IMessage;
-import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
-import cpw.mods.fml.common.network.simpleimpl.MessageContext;
-import cpw.mods.fml.relauncher.Side;
+import net.minecraftforge.fml.common.network.ByteBufUtils;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.relauncher.Side;
 
 /**
  * @author Ordinastie
  *
  */
 @MalisisMessage
-public class AdvertSaveMessage implements IMessageHandler<SavePacket, IMessage>
+public class AdvertSaveMessage implements IMalisisMessageHandler<SavePacket, IMessage>
 {
 	public AdvertSaveMessage()
 	{
@@ -49,18 +49,16 @@ public class AdvertSaveMessage implements IMessageHandler<SavePacket, IMessage>
 	}
 
 	@Override
-	public IMessage onMessage(SavePacket message, MessageContext ctx)
+	public void process(SavePacket message, MessageContext ctx)
 	{
-		if (message instanceof SavePacket && ctx.side == Side.SERVER)
-		{
-			ServerAdvert advert = ServerAdvert.get(message.id, true);
-			advert.setInfos(message.name, message.url);
-			advert.save();
+		if (!(message instanceof SavePacket) || ctx.side != Side.SERVER)
+			return;
 
-			AdvertListMessage.sendAdvert(advert);
-		}
+		ServerAdvert advert = ServerAdvert.get(message.id, true);
+		advert.setInfos(message.name, message.url);
+		advert.save();
 
-		return null;
+		AdvertListMessage.sendAdvert(advert);
 	}
 
 	public static void save(Advert advert)

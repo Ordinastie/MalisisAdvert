@@ -41,7 +41,7 @@ import net.malisis.core.client.gui.component.container.UIWindow;
 import net.malisis.core.client.gui.component.decoration.UIImage;
 import net.malisis.core.client.gui.component.interaction.UIButton;
 import net.malisis.core.client.gui.component.interaction.UITab;
-import net.minecraft.util.IIcon;
+import net.malisis.core.renderer.icon.GuiIcon;
 import net.minecraft.util.ResourceLocation;
 
 import org.apache.commons.lang3.StringUtils;
@@ -56,10 +56,10 @@ public class AdvertManagerGui extends MalisisGui
 {
 	public static ResourceLocation iconsRl = new ResourceLocation(MalisisAdvert.modid, "textures/gui/advertmanager.png");
 	public static GuiTexture icons = new GuiTexture(iconsRl, 96, 96);
-	public static IIcon addIcon = icons.getIcon(0, 0, 32, 32);
-	public static IIcon refreshIcon = icons.getIcon(64, 0, 32, 32);
-	public static IIcon editIcon = AdvertManagerGui.icons.getIcon(0, 32, 32, 32);
-	public static IIcon viewIcon = AdvertManagerGui.icons.getIcon(32, 32, 32, 32);
+	public static GuiIcon addIcon = icons.getIcon(0, 0, 32, 32);
+	public static GuiIcon refreshIcon = icons.getIcon(64, 0, 32, 32);
+	public static GuiIcon editIcon = AdvertManagerGui.icons.getIcon(0, 32, 32, 32);
+	public static GuiIcon viewIcon = AdvertManagerGui.icons.getIcon(32, 32, 32, 32);
 
 	public static ClientAdvert advert;
 

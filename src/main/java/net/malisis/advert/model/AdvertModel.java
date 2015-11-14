@@ -33,11 +33,12 @@ import java.util.Map;
 import net.malisis.advert.model.AdvertModel.IModelVariant;
 import net.malisis.advert.renderer.AdvertRenderer;
 import net.malisis.advert.tileentity.AdvertTileEntity;
+import net.malisis.core.MalisisRegistry;
 import net.malisis.core.client.gui.MalisisGui;
 import net.malisis.core.client.gui.component.container.UIContainer;
 import net.malisis.core.renderer.RenderParameters;
+import net.malisis.core.renderer.icon.IIconRegister;
 import net.malisis.core.renderer.model.MalisisModel;
-import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.ResourceLocation;
@@ -46,7 +47,7 @@ import net.minecraft.util.ResourceLocation;
  * @author Ordinastie
  *
  */
-public abstract class AdvertModel<T extends IModelVariant>
+public abstract class AdvertModel<T extends IModelVariant> implements IIconRegister
 {
 	private static Map<String, AdvertModel> registry = new HashMap<>();
 
@@ -58,8 +59,6 @@ public abstract class AdvertModel<T extends IModelVariant>
 	protected ResourceLocation objFile;
 	protected ResourceLocation placeHolder;
 	protected MalisisModel model;
-
-	protected boolean loaded = false;
 
 	public AdvertModel()
 	{}
@@ -140,26 +139,14 @@ public abstract class AdvertModel<T extends IModelVariant>
 		this.model = model;
 	}
 
-	public boolean isLoaded()
-	{
-		return loaded;
-	}
-
-	public void setLoaded(boolean loaded)
-	{
-		this.loaded = loaded;
-	}
-
 	//#end Getters/Setters
 
 	public void loadModelFile()
 	{
-		if (objFile == null || loaded)
+		if (objFile == null)
 			return;
 
 		model = new MalisisModel(objFile);
-
-		loaded = true;
 	}
 
 	public void writeToNBT(AdvertTileEntity tileEntity, NBTTagCompound tagCompound)
@@ -169,8 +156,6 @@ public abstract class AdvertModel<T extends IModelVariant>
 	{}
 
 	public abstract T defaultVariant(boolean wallMounted);
-
-	public abstract void registerIcons(IIconRegister register);
 
 	public abstract AxisAlignedBB[] getBoundingBox(T variant);
 
@@ -199,6 +184,8 @@ public abstract class AdvertModel<T extends IModelVariant>
 	public static void register(AdvertModel model)
 	{
 		registry.put(model.getId(), model);
+		MalisisRegistry.registerIconRegister(model);
+		model.loadModelFile();
 	}
 
 	public static Collection<AdvertModel> list()

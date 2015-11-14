@@ -36,7 +36,7 @@ import net.malisis.advert.network.AdvertDownloadMessage;
 import net.malisis.advert.network.AdvertListMessage;
 import net.malisis.core.client.gui.GuiTexture;
 import net.malisis.core.util.Timer;
-import cpw.mods.fml.common.network.ByteBufUtils;
+import net.minecraftforge.fml.common.network.ByteBufUtils;
 
 /**
  * @author Ordinastie

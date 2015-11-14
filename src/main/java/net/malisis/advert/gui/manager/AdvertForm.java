@@ -32,7 +32,7 @@ import net.malisis.core.client.gui.component.decoration.UIImage;
 import net.malisis.core.client.gui.component.decoration.UILabel;
 import net.malisis.core.client.gui.component.interaction.UIButton;
 import net.malisis.core.client.gui.component.interaction.UITextField;
-import net.minecraft.util.IIcon;
+import net.malisis.core.renderer.icon.GuiIcon;
 
 /**
  * @author Ordinastie
@@ -40,8 +40,8 @@ import net.minecraft.util.IIcon;
  */
 public class AdvertForm extends UIContainer<AdvertForm>
 {
-	private static IIcon deleteIcon = AdvertManagerGui.icons.getIcon(32, 0, 32, 32);
-	private static IIcon saveIcon = AdvertManagerGui.icons.getIcon(0, 64, 32, 32);
+	private static GuiIcon deleteIcon = AdvertManagerGui.icons.getIcon(32, 0, 32, 32);
+	private static GuiIcon saveIcon = AdvertManagerGui.icons.getIcon(0, 64, 32, 32);
 
 	private UITextField tfName;
 	private UITextField tfUrl;

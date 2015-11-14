@@ -25,7 +25,6 @@
 package net.malisis.advert;
 
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 
 /**
@@ -42,7 +41,7 @@ public class MalisisAdvertTab extends CreativeTabs
 	@Override
 	public Item getTabIconItem()
 	{
-		return Items.sign;
+		return Item.getItemFromBlock(MalisisAdvert.Blocks.advertBlock);
 	}
 
 }
