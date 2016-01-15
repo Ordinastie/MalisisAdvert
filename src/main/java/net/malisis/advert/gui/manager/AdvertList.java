@@ -31,6 +31,7 @@ import net.malisis.core.client.gui.component.container.UIListContainer;
 import net.malisis.core.client.gui.component.decoration.UILabel;
 import net.malisis.core.renderer.font.FontRenderOptions;
 import net.malisis.core.renderer.font.MalisisFont;
+import net.minecraft.util.EnumChatFormatting;
 
 import org.apache.commons.io.FileUtils;
 import org.lwjgl.opengl.GL11;
@@ -69,15 +70,15 @@ public class AdvertList extends UIListContainer<AdvertList, ClientAdvert>
 	@Override
 	public void drawEmtpy(GuiRenderer renderer, int mouseX, int mouseY, float partialTick)
 	{
-		emptyLabel.getFontRenderOptions().italic = true;
-		emptyLabel.setText(ClientAdvert.isPending() ? "malisisadvert.gui.querylist" : "malisisadvert.gui.noad");
+		emptyLabel.setText(EnumChatFormatting.ITALIC
+				+ (ClientAdvert.isPending() ? "malisisadvert.gui.querylist" : "malisisadvert.gui.noad"));
 		emptyLabel.draw(renderer, mouseX, mouseY, partialTick);
 	}
 
 	@Override
-	public void drawBackground(GuiRenderer renderer, int mouseX, int mouseY, float partialTick)
+	public void drawElementBackground(GuiRenderer renderer, int mouseX, int mouseY, float partialTick, ClientAdvert advert, boolean isHovered)
 	{
-		if (!current.equals(selected))
+		if (!isSelected(advert))
 			return;
 
 		renderer.disableTextures();
@@ -86,14 +87,14 @@ public class AdvertList extends UIListContainer<AdvertList, ClientAdvert>
 		rp.colorMultiplier.set(color);
 
 		shape.resetState();
-		shape.setSize(getWidth(), getElementHeight(current));
+		shape.setSize(getWidth(), getElementHeight(advert));
 		renderer.drawShape(shape, rp);
 
 		renderer.next(GL11.GL_LINE_LOOP);
 		GL11.glLineWidth(2);
 
 		shape.resetState();
-		shape.setSize(getWidth(), getElementHeight(current));
+		shape.setSize(getWidth(), getElementHeight(advert));
 		rp.colorMultiplier.set(0x000000);
 		renderer.drawShape(shape, rp);
 
@@ -102,18 +103,16 @@ public class AdvertList extends UIListContainer<AdvertList, ClientAdvert>
 	}
 
 	@Override
-	public void drawForeground(GuiRenderer renderer, int mouseX, int mouseY, float partialTick)
+	public void drawElementForeground(GuiRenderer renderer, int mouseX, int mouseY, float partialTick, ClientAdvert advert, boolean isHovered)
 	{
-		boolean isHovered = current.equals(hovered);
-
 		//Name
 		int x = 2;
 		fro.color = isHovered ? 0xFFFF99 : 0xFFFFFF;
 		fro.shadow = true;
 		fro.fontScale = 1;
 		fro.saveDefault();
-		renderer.drawText(font, current.getName(), x, 2, 0, fro);
-		x += font.getStringWidth(current.getName(), fro) + 6;
+		renderer.drawText(font, advert.getName(), x, 2, 0, fro);
+		x += font.getStringWidth(advert.getName(), fro) + 6;
 
 		//Image Dimensions
 		x = Math.max(70, x);
@@ -121,16 +120,17 @@ public class AdvertList extends UIListContainer<AdvertList, ClientAdvert>
 		fro.shadow = false;
 		fro.fontScale = 2F / 3F;
 		fro.saveDefault();
-		String dim = current.getWidth() + "x" + current.getHeight();
+		String dim = advert.getWidth() + "x" + advert.getHeight();
 		renderer.drawText(font, dim, x, 5, 0, fro);
 		x += font.getStringWidth(dim, fro) + 3;
 
 		//File size
-		String size = FileUtils.byteCountToDisplaySize(current.getSize());
+		String size = FileUtils.byteCountToDisplaySize(advert.getSize());
 		renderer.drawText(font, "(" + size + ")", x, 5, 0, fro);
 
 		//URL
-		String url = font.clipString(current.getUrl(), getWidth() - 6, fro, true);
+		String url = font.clipString(advert.getUrl(), getWidth() - 6, fro, true);
 		renderer.drawText(font, url, 2, 13, 0, fro);
 	}
+
 }
