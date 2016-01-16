@@ -158,9 +158,9 @@ public class AdvertManagerGui extends MalisisGui
 				return;
 
 			if (advert == null)
-				advert = new ClientAdvert(0, name, url);
-			else
-				advert.setInfos(name, url);
+				advert = new ClientAdvert(0);
+
+			advert.setInfos(name, url);
 
 			AdvertSaveMessage.save(advert);
 

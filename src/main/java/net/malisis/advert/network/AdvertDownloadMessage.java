@@ -26,11 +26,7 @@ package net.malisis.advert.network;
 
 import io.netty.buffer.ByteBuf;
 
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-
-import javax.imageio.ImageIO;
 
 import net.malisis.advert.MalisisAdvert;
 import net.malisis.advert.advert.Advert;
@@ -92,22 +88,8 @@ public class AdvertDownloadMessage implements IMalisisMessageHandler<IMessage, I
 			advert.setError(message.error);
 			return;
 		}
-
-		BufferedImage img;
-		try
-		{
-			img = ImageIO.read(new ByteArrayInputStream(message.data));
-			if (img != null)
-				advert.setTexture(img, message.size);
-			else
-				advert.setError("Could not read image.");
-
-		}
-		catch (IOException e)
-		{
-			MalisisAdvert.log.error("Could not set the texture for {}", advert, e);
-			advert.setError("Could not read image.");
-		}
+		else
+			advert.setTexture(message.data, message.size);
 	}
 
 	public static void queryDownload(Advert advert)
@@ -118,7 +100,7 @@ public class AdvertDownloadMessage implements IMalisisMessageHandler<IMessage, I
 
 	public static void sendImageData(ServerAdvert advert, EntityPlayerMP player)
 	{
-		if (!advert.getFile().exists() && advert.getError() == null)
+		if ((advert.getFile() == null || !advert.getFile().exists()) && advert.getError() == null)
 		{
 			advert.downloadAdvert(player);
 			return;
