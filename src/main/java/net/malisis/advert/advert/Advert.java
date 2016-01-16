@@ -24,12 +24,29 @@
 
 package net.malisis.advert.advert;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+
+import net.malisis.advert.MalisisAdvert;
+
+import org.apache.commons.lang3.StringUtils;
+
+import com.google.common.hash.Hashing;
+import com.google.common.io.Files;
+
 /**
  * @author Ordinastie
  *
  */
 public abstract class Advert implements Comparable<Advert>
 {
+	protected static String advertDir = "adverts/";
+
 	protected int id;
 	protected String name;
 	protected long size;
@@ -38,11 +55,12 @@ public abstract class Advert implements Comparable<Advert>
 	protected String url;
 	private String error;
 
-	public Advert(int id, String name, String url)
+	protected File file;
+	protected String hash;
+
+	public Advert(int id)
 	{
 		this.id = id;
-		this.name = name;
-		this.url = url;
 	}
 
 	//#region Getters/Setters
@@ -56,19 +74,9 @@ public abstract class Advert implements Comparable<Advert>
 		return name;
 	}
 
-	public void setName(String name)
-	{
-		this.name = name;
-	}
-
 	public String getUrl()
 	{
 		return url;
-	}
-
-	public void setUrl(String url)
-	{
-		this.url = url;
 	}
 
 	public long getSize()
@@ -105,6 +113,12 @@ public abstract class Advert implements Comparable<Advert>
 		this.error = null;
 	}
 
+	public void setHash(String hash)
+	{
+		this.hash = hash;
+		setFile();
+	}
+
 	public void setData(long size, int width, int height)
 	{
 		this.size = size;
@@ -112,11 +126,81 @@ public abstract class Advert implements Comparable<Advert>
 		this.height = height;
 	}
 
+	protected String calculateHash(byte[] img)
+	{
+		return Hashing.md5().hashBytes(img).toString();
+	}
+
+	public File getFile()
+	{
+		return file;
+	}
+
+	protected void setFile()
+	{
+		if (!StringUtils.isEmpty(name) && !StringUtils.isEmpty(hash))
+		{
+			file = new File(advertDir, hash);
+			loadFile();
+		}
+	}
+
+	protected boolean writeFile(byte[] img)
+	{
+		setHash(calculateHash(img));
+
+		try (FileOutputStream fos = new FileOutputStream(file))
+		{
+			fos.write(img);
+			fos.close();
+			return true;
+		}
+		catch (Exception e)
+		{
+			setError(e.getMessage());
+			MalisisAdvert.log.error(e);
+			return false;
+		}
+
+	}
+
+	protected void loadFile()
+	{
+		if (file == null || !file.exists())
+			return;
+
+		size = file.length();
+		BufferedImage img;
+		try
+		{
+			img = ImageIO.read(new ByteArrayInputStream(Files.toByteArray(file)));
+			if (img != null)
+			{
+				width = img.getWidth();
+				height = img.getHeight();
+			}
+		}
+		catch (IOException e)
+		{
+			MalisisAdvert.log.error("Could not get image infos for {}", this, e);
+		}
+	}
+
+	protected abstract void downloadFile();
+
+	public boolean isDownloaded()
+	{
+		return file.exists();
+	}
+
 	public void save()
 	{}
 
 	public void delete()
-	{}
+	{
+		if (file != null)
+			file.delete();
+	}
 
 	@Override
 	public int compareTo(Advert o)

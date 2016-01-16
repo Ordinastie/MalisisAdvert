@@ -26,12 +26,9 @@ package net.malisis.advert.advert;
 
 import io.netty.buffer.ByteBuf;
 
-import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -43,8 +40,6 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
-
-import javax.imageio.ImageIO;
 
 import net.malisis.advert.MalisisAdvert;
 import net.malisis.advert.network.AdvertDownloadMessage;
@@ -66,68 +61,35 @@ import cpw.mods.fml.common.network.ByteBufUtils;
  */
 public class ServerAdvert extends Advert
 {
+	private static File packDir = new File("./" + advertDir);
 	private static ListeningExecutorService threadPool = MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor());
 	private static ListenableFuture<Void> task;
 	private static Set<EntityPlayerMP> listeners = new HashSet<>();
 
 	private static SortedMap<Integer, ServerAdvert> adverts = new TreeMap<>();
-	private static String advertDir = "adverts/";
+
 	private static String advertListing = "listing.txt";
-	private static File packDir = new File("./" + advertDir);
 	private static int globalId = 1;
 
-	protected File file;
-
-	public ServerAdvert(int id, String name, String url)
+	public ServerAdvert(int id)
 	{
-		super(id, name, url);
-		setFile();
-	}
-
-	public File getFile()
-	{
-		return file;
-	}
-
-	private void setFile()
-	{
-		if (StringUtils.isEmpty(name))
-			return;
-
-		file = new File(advertDir, "" + id);
-		if (file != null && file.exists())
-		{
-			size = file.length();
-			BufferedImage img;
-			try
-			{
-				img = ImageIO.read(new ByteArrayInputStream(Files.toByteArray(file)));
-				if (img != null)
-				{
-					width = img.getWidth();
-					height = img.getHeight();
-				}
-			}
-			catch (IOException e)
-			{
-				MalisisAdvert.log.error("Could not get image infos for {}", this, e);
-				return;
-			}
-		}
-	}
-
-	public boolean isDownloaded()
-	{
-		return file.exists();
+		super(id);
 	}
 
 	@Override
 	public void setInfos(String name, String url)
 	{
-		if (!this.url.equals(url) && file != null)
+		boolean newUrl = this.url != null && !StringUtils.equals(this.url, url);
+		if (newUrl && file != null)
+		{
 			file.delete();
+			file = null;
+		}
+
 		super.setInfos(name, url);
-		setFile();
+
+		if (newUrl)
+			downloadFile();
 	}
 
 	@Override
@@ -142,8 +104,6 @@ public class ServerAdvert extends Advert
 	public void delete()
 	{
 		super.delete();
-		if (file != null)
-			file.delete();
 		adverts.remove(id);
 		writeListing();
 	}
@@ -153,55 +113,78 @@ public class ServerAdvert extends Advert
 		buf.writeInt(id);
 		ByteBufUtils.writeUTF8String(buf, name);
 		ByteBufUtils.writeUTF8String(buf, url);
+		ByteBufUtils.writeUTF8String(buf, hash != null ? hash : "");
 		buf.writeLong(size);
 		buf.writeInt(width);
 		buf.writeInt(height);
+
 	}
 
 	public void downloadAdvert(EntityPlayerMP player)
 	{
 		listeners.add(player);
-		if (task != null && !task.isDone())
+		downloadFile();
+	}
+
+	private boolean checkOldFile()
+	{
+		File f = new File(advertDir, "" + id);
+		if (!f.exists())
+			return false;
+
+		try
+		{
+			byte[] img = Files.toByteArray(f);
+			f.delete();
+			writeFile(img);
+			writeListing();
+			return true;
+		}
+		catch (IOException e)
+		{
+			return false;
+		}
+
+	}
+
+	@Override
+	protected void downloadFile()
+	{
+		if (checkOldFile())
 			return;
 
-		//MalisisCore.message("Downloading...");
+		if (task != null && !task.isDone())
+			return;
 
 		task = threadPool.submit(new Callable<Void>()
 		{
 			@Override
 			public Void call() throws Exception
 			{
+				byte[] img = null;
 				try
 				{
-					byte[] img = Resources.toByteArray(new URL(url));
-					try (FileOutputStream fos = new FileOutputStream(file))
-					{
-						fos.write(img);
-						fos.close();
-					}
-					catch (IOException e)
-					{
-						setError(e.getMessage());
-						e.printStackTrace();
-					}
-
+					img = Resources.toByteArray(new URL(url));
 				}
 				catch (Exception e)
 				{
 					setError(e.getMessage());
-					e.printStackTrace();
+					MalisisAdvert.log.error(e);
 				}
 
-				for (EntityPlayerMP player : listeners)
-				{
-					setFile();
-					AdvertDownloadMessage.sendImageData(ServerAdvert.this, player);
-				}
-				listeners.clear();
-
+				writeFile(img);
+				writeListing();
+				sendImageData();
 				return null;
 			}
 		});
+	}
+
+	private void sendImageData()
+	{
+		for (EntityPlayerMP player : listeners)
+			AdvertDownloadMessage.sendImageData(ServerAdvert.this, player);
+		listeners.clear();
 	}
 
 	static
@@ -223,9 +206,9 @@ public class ServerAdvert extends Advert
 		if (advert == null || id == 0)
 		{
 			if (create)
-				advert = new ServerAdvert(globalId++, "", "");
+				advert = new ServerAdvert(globalId++);
 			else
-				MalisisAdvert.log.error("Cannot find Advert \"{}\" for server", id);
+				MalisisAdvert.log.error("Cannot find Advert {} for server", id);
 		}
 
 		return advert;
@@ -244,16 +227,23 @@ public class ServerAdvert extends Advert
 	public static void readListing()
 	{
 		File listing = new File(packDir, advertListing);
+		if (!listing.exists())
+			return;
 		try (BufferedReader br = new BufferedReader(new FileReader(listing)))
 		{
 
 			for (String line; (line = br.readLine()) != null;)
 			{
 				String[] parts = line.split(";");
-				if (parts.length == 3)
+				if (parts.length == 3 || parts.length == 4)
 				{
 					int id = Integer.decode(parts[0]);
-					adverts.put(id, new ServerAdvert(id, parts[1], parts[2]));
+					ServerAdvert advert = new ServerAdvert(id);
+					advert.setInfos(parts[1], parts[2]);
+					if (parts.length == 4)
+						advert.setHash(parts[3]);
+
+					adverts.put(id, advert);
 					if (id >= globalId)
 						globalId = id + 1;
 				}
@@ -271,7 +261,7 @@ public class ServerAdvert extends Advert
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(listing)))
 		{
 			for (ServerAdvert advert : adverts.values())
-				bw.write(advert.id + ";" + advert.name + ";" + advert.url + "\r\n");
+				bw.write(advert.id + ";" + advert.name + ";" + advert.url + ";" + advert.hash + "\r\n");
 		}
 		catch (IOException e)
 		{

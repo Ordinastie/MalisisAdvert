@@ -27,15 +27,24 @@ package net.malisis.advert.advert;
 import io.netty.buffer.ByteBuf;
 
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.SortedMap;
 import java.util.TreeMap;
+
+import javax.imageio.ImageIO;
 
 import net.malisis.advert.MalisisAdvert;
 import net.malisis.advert.network.AdvertDownloadMessage;
 import net.malisis.advert.network.AdvertListMessage;
 import net.malisis.core.client.gui.GuiTexture;
 import net.malisis.core.util.Timer;
+
+import org.apache.commons.lang3.StringUtils;
+
+import com.google.common.io.Files;
+
 import cpw.mods.fml.common.network.ByteBufUtils;
 
 /**
@@ -48,38 +57,77 @@ public class ClientAdvert extends Advert
 	private static boolean pending = false;
 	private static Timer timer = new Timer();
 
+	static
+	{
+		queryAdvertList();
+	}
+
 	private GuiTexture texture;
 
-	public ClientAdvert(int id, String name, String url)
+	public ClientAdvert(int id)
 	{
-		super(id, name, url);
+		super(id);
 	}
 
 	@Override
-	public void setInfos(String name, String url)
+	public void setHash(String hash)
 	{
-		if (!this.url.equals(url) && texture != null)
+		if (StringUtils.equals(this.hash, hash) && texture != null)
 		{
 			texture.delete();
 			texture = null;
 		}
-		super.setInfos(name, url);
+
+		super.setHash(hash);
+
 	}
 
 	public GuiTexture getTexture()
 	{
 		if (texture == null && getError() == null)
-			download();
+		{
+			if (file != null && file.exists())
+			{
+				try
+				{
+					byte[] img = Files.toByteArray(file);
+					setTexture(img, size);
+				}
+				catch (IOException e)
+				{
+					return null;
+				}
+
+			}
+			else
+				downloadFile();
+		}
 
 		return texture;
 	}
 
-	public void setTexture(BufferedImage image, long size)
+	public void setTexture(byte[] data, long size)
 	{
-		texture = new GuiTexture(image, name);
-		this.size = size;
-		width = image.getWidth();
-		height = image.getHeight();
+		try
+		{
+			BufferedImage image = ImageIO.read(new ByteArrayInputStream(data));
+			if (image == null)
+			{
+				setError("Could not read image.");
+				return;
+			}
+
+			writeFile(data);
+			texture = new GuiTexture(image, name);
+			this.size = size;
+			this.width = image.getWidth();
+			this.height = image.getHeight();
+		}
+		catch (IOException e)
+		{
+			MalisisAdvert.log.error("Could not set the texture for {}", this, e);
+			setError("Could not read image.");
+		}
 	}
 
 	@Override
@@ -98,18 +146,14 @@ public class ClientAdvert extends Advert
 		adverts.put(id, this);
 	}
 
-	public void download()
+	@Override
+	public void downloadFile()
 	{
 		if (isPending())
 			return;
 
 		setPending(true);
 		AdvertDownloadMessage.queryDownload(this);
-	}
-
-	static
-	{
-		queryAdvertList();
 	}
 
 	public static ClientAdvert get(int id)
@@ -123,7 +167,7 @@ public class ClientAdvert extends Advert
 		if (advert == null)
 		{
 			if (create)
-				advert = new ClientAdvert(id, "", "");
+				advert = new ClientAdvert(id);
 			else if (!isPending())
 				MalisisAdvert.log.error("Cannot find Advert \"{}\" for client", id);
 		}
@@ -170,6 +214,7 @@ public class ClientAdvert extends Advert
 		int id = buf.readInt();
 		ClientAdvert advert = ClientAdvert.get(id, true);
 		advert.setInfos(ByteBufUtils.readUTF8String(buf), ByteBufUtils.readUTF8String(buf));
+		advert.setHash(ByteBufUtils.readUTF8String(buf));
 		advert.setData(buf.readLong(), buf.readInt(), buf.readInt());
 
 		return advert;
