@@ -29,7 +29,6 @@ import net.malisis.advert.MalisisAdvert;
 import net.malisis.advert.advert.Advert;
 import net.malisis.advert.advert.ServerAdvert;
 import net.malisis.advert.network.AdvertSaveMessage.SavePacket;
-import net.malisis.core.MalisisCore;
 import net.malisis.core.network.IMalisisMessageHandler;
 import net.malisis.core.network.MalisisMessage;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
@@ -55,19 +54,10 @@ public class AdvertSaveMessage implements IMalisisMessageHandler<SavePacket, IMe
 		if (!(message instanceof SavePacket) || ctx.side != Side.SERVER)
 			return;
 
-		try
-		{
-			ServerAdvert advert = ServerAdvert.get(message.id, true);
-			advert.setInfos(message.name, message.url);
-			advert.save();
-			AdvertListMessage.sendAdvert(advert);
-		}
-		catch (Throwable t)
-		{
-			MalisisCore.message("Error");
-			t.printStackTrace();
-		}
-
+		ServerAdvert advert = ServerAdvert.get(message.id, true);
+		advert.setInfos(message.name, message.url);
+		advert.save();
+		AdvertListMessage.sendAdvert(advert);
 	}
 
 	public static void save(Advert advert)
