@@ -83,6 +83,7 @@ if (project.hasProperty('curseapi')) {
 		project {
 			id = '228722'
 			releaseType = 'release'
+			requiredLibrary 'malisiscore'
 			
 			addArtifact deobfJar
 		}
