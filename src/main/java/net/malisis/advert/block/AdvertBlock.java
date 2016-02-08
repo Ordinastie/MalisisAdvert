@@ -24,13 +24,15 @@
 
 package net.malisis.advert.block;
 
+import java.util.List;
+
 import net.malisis.advert.MalisisAdvert;
 import net.malisis.advert.network.AdvertGuiMessage;
 import net.malisis.advert.renderer.AdvertRenderer;
 import net.malisis.advert.tileentity.AdvertTileEntity;
 import net.malisis.core.block.BoundingBoxType;
-import net.malisis.core.block.IBlockDirectional;
 import net.malisis.core.block.MalisisBlock;
+import net.malisis.core.block.component.DirectionalComponent;
 import net.malisis.core.renderer.DefaultRenderer;
 import net.malisis.core.renderer.MalisisRendered;
 import net.malisis.core.util.AABBUtils;
@@ -39,8 +41,8 @@ import net.malisis.core.util.TileEntityUtils;
 import net.malisis.core.util.chunkcollision.IChunkCollidable;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyBool;
-import net.minecraft.block.state.BlockState;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -53,12 +55,14 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
+import com.google.common.collect.Lists;
+
 /**
  * @author Ordinastie
  *
  */
 @MalisisRendered(block = AdvertRenderer.class, item = DefaultRenderer.Block.class)
-public class AdvertBlock extends MalisisBlock implements ITileEntityProvider, IChunkCollidable, IBlockDirectional
+public class AdvertBlock extends MalisisBlock implements ITileEntityProvider, IChunkCollidable
 {
 	public static final PropertyBool WALL = PropertyBool.create("wall");
 
@@ -70,19 +74,21 @@ public class AdvertBlock extends MalisisBlock implements ITileEntityProvider, IC
 		setName("advertBlock");
 		setCreativeTab(MalisisAdvert.tab);
 		setTexture(MalisisAdvert.modid + ":blocks/MA");
+
+		addComponent(new DirectionalComponent(DirectionalComponent.ALL, (state, side, placer) -> side == EnumFacing.UP ? EntityUtils
+				.getEntityFacing(placer).getOpposite() : side));
 	}
 
 	@Override
-	protected BlockState createBlockState()
+	protected List<IProperty> getProperties()
 	{
-		return new BlockState(this, HORIZONTAL, WALL);
+		return Lists.newArrayList(WALL);
 	}
 
 	@Override
 	public IBlockState onBlockPlaced(World world, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
 	{
-		EnumFacing dir = facing == EnumFacing.UP ? EntityUtils.getEntityFacing(placer).getOpposite() : facing;
-		return getDefaultState().withProperty(HORIZONTAL, dir).withProperty(WALL, facing != EnumFacing.UP);
+		return super.onBlockPlaced(world, pos, facing, hitX, hitY, hitZ, meta, placer).withProperty(WALL, facing != EnumFacing.UP);
 	}
 
 	@Override

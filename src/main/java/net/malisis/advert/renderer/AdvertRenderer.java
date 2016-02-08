@@ -28,7 +28,7 @@ import net.malisis.advert.advert.AdvertSelection;
 import net.malisis.advert.advert.ClientAdvert;
 import net.malisis.advert.model.AdvertModel;
 import net.malisis.advert.tileentity.AdvertTileEntity;
-import net.malisis.core.block.IBlockDirectional;
+import net.malisis.core.block.component.DirectionalComponent;
 import net.malisis.core.renderer.MalisisRenderer;
 import net.malisis.core.renderer.RenderParameters;
 import net.malisis.core.renderer.RenderType;
@@ -81,7 +81,7 @@ public class AdvertRenderer extends MalisisRenderer
 		advertModel = tileEntity.getModel();
 		model = advertModel.getModel();
 		model.resetState();
-		EnumFacing dir = IBlockDirectional.getDirection(blockState);
+		EnumFacing dir = DirectionalComponent.getDirection(blockState);
 		model.rotate(EnumFacingUtils.getRotationCount(dir) * 90, 0, 1, 0, 0, 0, 0);
 
 		if (renderType == RenderType.BLOCK)
