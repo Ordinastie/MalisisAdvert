@@ -33,6 +33,7 @@ import java.util.Map;
 import net.malisis.advert.model.AdvertModel.IModelVariant;
 import net.malisis.advert.renderer.AdvertRenderer;
 import net.malisis.advert.tileentity.AdvertTileEntity;
+import net.malisis.core.MalisisCore;
 import net.malisis.core.MalisisRegistry;
 import net.malisis.core.client.gui.MalisisGui;
 import net.malisis.core.client.gui.component.container.UIContainer;
@@ -184,6 +185,9 @@ public abstract class AdvertModel<T extends IModelVariant> implements IIconRegis
 	public static void register(AdvertModel model)
 	{
 		registry.put(model.getId(), model);
+		if (!MalisisCore.isClient())
+			return;
+
 		MalisisRegistry.registerIconRegister(model);
 		model.loadModelFile();
 	}

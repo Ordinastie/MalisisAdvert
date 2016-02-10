@@ -30,6 +30,7 @@ import net.malisis.advert.advert.AdvertSelection;
 import net.malisis.advert.model.TriangularColumn.Variant;
 import net.malisis.advert.renderer.AdvertRenderer;
 import net.malisis.advert.tileentity.AdvertTileEntity;
+import net.malisis.core.MalisisCore;
 import net.malisis.core.client.gui.MalisisGui;
 import net.malisis.core.client.gui.component.container.UIContainer;
 import net.malisis.core.client.gui.component.interaction.UICheckBox;
@@ -43,6 +44,8 @@ import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import org.lwjgl.opengl.GL11;
 
@@ -55,7 +58,8 @@ public class TriangularColumn extends AdvertModel<Variant>
 	private Shape base;
 	private Shape topBottom;
 	private Shape panels;
-	private MalisisIcon icon = new MalisisIcon(MalisisAdvert.modid + ":blocks/triangular_column");
+	@SideOnly(Side.CLIENT)
+	private MalisisIcon icon;
 
 	private AnimationRenderer ar;
 	private Rotation rotation;
@@ -69,6 +73,9 @@ public class TriangularColumn extends AdvertModel<Variant>
 		this.height = 2.5F;
 		this.objFile = new ResourceLocation(MalisisAdvert.modid, "models/triangular_column.obj");
 		this.placeHolder = new ResourceLocation(MalisisAdvert.modid, "textures/blocks/MA23.png");
+
+		if (MalisisCore.isClient())
+			icon = new MalisisIcon(MalisisAdvert.modid + ":blocks/triangular_column");
 	}
 
 	@Override

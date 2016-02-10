@@ -33,6 +33,7 @@ import net.malisis.advert.advert.AdvertSelection;
 import net.malisis.advert.model.PanelModel.Variant;
 import net.malisis.advert.renderer.AdvertRenderer;
 import net.malisis.advert.tileentity.AdvertTileEntity;
+import net.malisis.core.MalisisCore;
 import net.malisis.core.client.gui.MalisisGui;
 import net.malisis.core.client.gui.component.container.UIContainer;
 import net.malisis.core.client.gui.component.decoration.UILabel;
@@ -50,6 +51,8 @@ import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
  * @author Ordinastie
@@ -67,7 +70,8 @@ public class PanelModel extends AdvertModel<Variant>
 	private Shape panel;
 	private Shape displayTop;
 	private Shape displayBottom;
-	private MalisisIcon panelIcon = new MalisisIcon(MalisisAdvert.modid + ":blocks/panel");
+	@SideOnly(Side.CLIENT)
+	private MalisisIcon panelIcon;
 
 	private AnimationRenderer ar;
 	private Transformation topTransform;
@@ -85,6 +89,9 @@ public class PanelModel extends AdvertModel<Variant>
 		this.height = 3 - 2 * border;
 		this.objFile = new ResourceLocation(MalisisAdvert.modid, "models/panel.obj");
 		this.placeHolder = new ResourceLocation(MalisisAdvert.modid, "textures/blocks/MA23.png");
+
+		if (MalisisCore.isClient())
+			panelIcon = new MalisisIcon(MalisisAdvert.modid + ":blocks/panel");
 	}
 
 	@Override
