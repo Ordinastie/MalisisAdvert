@@ -27,13 +27,13 @@ package net.malisis.advert.tileentity;
 import java.util.Arrays;
 
 import net.malisis.advert.advert.AdvertSelection;
-import net.malisis.advert.model.AdvertModel;
-import net.malisis.advert.model.AdvertModel.IModelVariant;
+import net.malisis.advert.model.ModelVariantContainer;
 import net.malisis.core.util.TileEntityUtils;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
+import net.minecraft.network.play.INetHandlerPlayClient;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
@@ -45,42 +45,31 @@ import net.minecraftforge.common.util.Constants.NBT;
  */
 public class AdvertTileEntity extends TileEntity
 {
-	protected AdvertModel model;
-	protected IModelVariant variant;
+	protected ModelVariantContainer<?> container;
 	protected boolean wallMounted;
 	protected AdvertSelection[] selectedAdverts = new AdvertSelection[0];
 
 	public AdvertTileEntity()
 	{
-
-		setModel(null, null);
+		setModelContainer(null);
 	}
 
-	public AdvertModel getModel()
+	public ModelVariantContainer<?> getModelContainer()
 	{
-		return model;
+		return container;
 	}
 
-	public IModelVariant getModelVariant()
+	public void setModelContainer(ModelVariantContainer<?> container)
 	{
-		return variant;
-	}
+		if (container == null)
+			container = ModelVariantContainer.getDefaultContainer();
+		this.container = container;
 
-	public void setModel(AdvertModel model, IModelVariant variant)
-	{
-		if (model == null)
-			model = AdvertModel.getModel(null);
-
-		if (variant == null || variant.isWallMounted() != isWallMounted())
-			variant = model.defaultVariant(isWallMounted());
-
-		this.model = model;
-		this.variant = variant;
-
-		this.selectedAdverts = Arrays.copyOf(selectedAdverts, model.getAvailableSlots());
+		this.selectedAdverts = Arrays.copyOf(selectedAdverts, container.getModel().getAvailableSlots());
 
 		if (getWorld() != null)
 			getWorld().markBlockForUpdate(pos);
+
 	}
 
 	public void setWallMounted(boolean wallMounted)
@@ -112,7 +101,7 @@ public class AdvertTileEntity extends TileEntity
 		if (selectedAdverts.length == 0)
 			return null;
 
-		if (index < 0 || index >= model.getAvailableSlots())
+		if (index < 0 || index >= container.getModel().getAvailableSlots())
 			return null;
 
 		return selectedAdverts[index];
@@ -131,7 +120,7 @@ public class AdvertTileEntity extends TileEntity
 
 	public void addSelection(int index, AdvertSelection advertSelection)
 	{
-		if (index < 0 || index >= model.getAvailableSlots())
+		if (index < 0 || index >= container.getModel().getAvailableSlots())
 			return;
 
 		selectedAdverts[index] = advertSelection;
@@ -148,13 +137,8 @@ public class AdvertTileEntity extends TileEntity
 		super.writeToNBT(tagCompound);
 
 		tagCompound.setBoolean("wall_mounted", wallMounted);
-		if (model != null)
-		{
-			tagCompound.setString("model", model.getId());
-			model.writeToNBT(this, tagCompound);
-		}
-		if (variant != null)
-			variant.writeToNBT(tagCompound);
+
+		container.toNBT(this, tagCompound);
 
 		NBTTagList asList = new NBTTagList();
 		for (int i = 0; i < selectedAdverts.length; i++)
@@ -178,13 +162,7 @@ public class AdvertTileEntity extends TileEntity
 
 		wallMounted = tagCompound.getBoolean("wall_mounted");
 
-		AdvertModel model = AdvertModel.getModel(tagCompound.getString("model"));
-		model.readFromNBT(this, tagCompound);
-
-		IModelVariant variant = model.defaultVariant(isWallMounted());
-		variant.readFromNBT(tagCompound);
-
-		setModel(model, variant);
+		setModelContainer(ModelVariantContainer.fromNBT(this, tagCompound));
 
 		NBTTagList nbttaglist = tagCompound.getTagList("selections", NBT.TAG_COMPOUND);
 		for (int i = 0; i < nbttaglist.tagCount(); ++i)
@@ -195,7 +173,7 @@ public class AdvertTileEntity extends TileEntity
 	}
 
 	@Override
-	public Packet getDescriptionPacket()
+	public Packet<INetHandlerPlayClient> getDescriptionPacket()
 	{
 		NBTTagCompound nbt = new NBTTagCompound();
 		this.writeToNBT(nbt);

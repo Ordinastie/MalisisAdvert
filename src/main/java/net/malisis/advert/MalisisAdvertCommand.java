@@ -111,7 +111,7 @@ public class MalisisAdvertCommand extends CommandBase
 	}
 
 	@Override
-	public List addTabCompletionOptions(ICommandSender icommandsender, String[] params, BlockPos pos)
+	public List<String> addTabCompletionOptions(ICommandSender icommandsender, String[] params, BlockPos pos)
 	{
 		if (params.length == 1)
 			return getListOfStringsMatchingLastWord(params, parameters);

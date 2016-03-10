@@ -26,7 +26,7 @@ package net.malisis.advert.renderer;
 
 import net.malisis.advert.advert.AdvertSelection;
 import net.malisis.advert.advert.ClientAdvert;
-import net.malisis.advert.model.AdvertModel;
+import net.malisis.advert.model.ModelVariantContainer;
 import net.malisis.advert.tileentity.AdvertTileEntity;
 import net.malisis.core.block.component.DirectionalComponent;
 import net.malisis.core.renderer.MalisisRenderer;
@@ -44,9 +44,9 @@ import net.minecraft.util.EnumFacing;
  * @author Ordinastie
  *
  */
-public class AdvertRenderer extends MalisisRenderer
+public class AdvertRenderer extends MalisisRenderer<AdvertTileEntity>
 {
-	private AdvertModel advertModel;
+	private ModelVariantContainer<?> container;
 	private MalisisModel model;
 	private Shape cube = new Cube();
 	private RenderParameters rp = new RenderParameters();
@@ -70,29 +70,29 @@ public class AdvertRenderer extends MalisisRenderer
 			return;
 		}
 
-		tileEntity = (AdvertTileEntity) super.tileEntity;
-		if (tileEntity == null || tileEntity.getModel() == null)
+		tileEntity = super.tileEntity;
+		if (tileEntity == null || tileEntity.getModelContainer() == null)
 		{
 			if (renderType == RenderType.BLOCK)
 				drawShape(cube, rp);
 			return;
 		}
 
-		advertModel = tileEntity.getModel();
-		model = advertModel.getModel();
+		container = tileEntity.getModelContainer();
+		model = container.getModel().getModel();
 		model.resetState();
 		EnumFacing dir = DirectionalComponent.getDirection(blockState);
 		model.rotate(EnumFacingUtils.getRotationCount(dir) * 90, 0, 1, 0, 0, 0, 0);
 
 		if (renderType == RenderType.BLOCK)
 		{
-			advertModel.renderBlock(this, tileEntity, rp, tileEntity.getModelVariant());
+			container.renderBlock(this, tileEntity, rp);
 			return;
 		}
 
 		if (renderType == RenderType.TILE_ENTITY)
 		{
-			advertModel.renderTileEntity(this, tileEntity, rp, tileEntity.getModelVariant());
+			container.renderTileEntity(this, tileEntity, rp);
 		}
 	}
 
@@ -117,7 +117,7 @@ public class AdvertRenderer extends MalisisRenderer
 			bindTexture(advert.getTexture().getResourceLocation());
 		else
 		{
-			bindTexture(advertModel.getPlaceHolder());
+			bindTexture(container.getModel().getPlaceHolder());
 
 			rp.icon.set(null);
 		}

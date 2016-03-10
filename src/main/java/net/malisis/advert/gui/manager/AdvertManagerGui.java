@@ -68,7 +68,7 @@ public class AdvertManagerGui extends MalisisGui
 	private UIPanel formCont;
 	private AdvertForm advertForm;
 	private AdvertView advertView;
-	private UIContainer<UIContainer> advertViewCont;
+	private UIContainer<?> advertViewCont;
 
 	private UITab tabEdit;
 	private UITab tabView;
@@ -184,7 +184,7 @@ public class AdvertManagerGui extends MalisisGui
 	}
 
 	@Subscribe
-	public void onAdvertSelect(UIListContainer.SelectEvent<ClientAdvert> event)
+	public void onAdvertSelect(UIListContainer.SelectEvent<AdvertList, ClientAdvert> event)
 	{
 		showForm(event.getSelected() != null);
 		selectAdvert(event.getSelected());

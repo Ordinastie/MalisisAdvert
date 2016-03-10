@@ -74,8 +74,8 @@ public class PanelModel extends AdvertModel<Variant>
 	private MalisisIcon panelIcon;
 
 	private AnimationRenderer ar;
-	private Transformation topTransform;
-	private Transformation bottomTransform;
+	private ChainedTransformation topTransform;
+	private ChainedTransformation bottomTransform;
 	private MalisisIcon baseIcon;
 	private PanelData panelData;
 
@@ -158,7 +158,7 @@ public class PanelModel extends AdvertModel<Variant>
 	}
 
 	@Override
-	public int getGuiComponent(MalisisGui gui, UIContainer container, Variant variant)
+	public int getGuiComponent(MalisisGui gui, UIContainer<?> container, Variant variant)
 	{
 		UILabel label = new UILabel(gui, "malisisadvert.gui.model.panel.type");
 		UISelect<FootType> select = new UISelect<>(gui, 150, Arrays.asList(FootType.values())).setName("footType");
@@ -173,9 +173,10 @@ public class PanelModel extends AdvertModel<Variant>
 	}
 
 	@Override
-	public Variant getVariantFromGui(UIContainer container)
+	public Variant getVariantFromGui(UIContainer<?> container)
 	{
 		Variant variant = new Variant();
+		@SuppressWarnings("unchecked")
 		UISelect<FootType> sel = (UISelect<FootType>) container.getComponent("footType");
 		variant.type = sel.getSelectedValue();
 
@@ -213,7 +214,7 @@ public class PanelModel extends AdvertModel<Variant>
 			renderAdvert(renderer, displayBottom, tileEntity.getSelection(1), bottomTransform, b);
 	}
 
-	private void renderAdvert(AdvertRenderer renderer, Shape shape, AdvertSelection as, Transformation transform, boolean anim)
+	private void renderAdvert(AdvertRenderer renderer, Shape shape, AdvertSelection as, ChainedTransformation transform, boolean anim)
 	{
 		panelData.set(shape, as);
 		if (anim)
@@ -291,6 +292,12 @@ public class PanelModel extends AdvertModel<Variant>
 		}
 
 		@Override
+		public PanelTransform self()
+		{
+			return this;
+		}
+
+		@Override
 		protected void doTransform(PanelData data, float comp)
 		{
 			if (isTop && comp == 0)
@@ -332,6 +339,7 @@ public class PanelModel extends AdvertModel<Variant>
 		{
 			return super.completion(elapsedTime);
 		}
+
 	}
 
 }

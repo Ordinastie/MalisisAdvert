@@ -29,7 +29,7 @@ import java.util.Arrays;
 import net.malisis.advert.advert.AdvertSelection;
 import net.malisis.advert.gui.AdvertView;
 import net.malisis.advert.model.AdvertModel;
-import net.malisis.advert.model.AdvertModel.IModelVariant;
+import net.malisis.advert.model.ModelVariantContainer;
 import net.malisis.advert.network.AdvertSelectionMessage;
 import net.malisis.advert.tileentity.AdvertTileEntity;
 import net.malisis.core.client.gui.Anchor;
@@ -53,10 +53,10 @@ public class AdvertSelectionGui extends MalisisGui
 {
 	private AdvertTileEntity tileEntity;
 
-	UISelect<AdvertModel> selModel;
+	UISelect<AdvertModel<?>> selModel;
 	private UIButton btnSave;
 	private UIButton btnClose;
-	private UIContainer modelCont, ascCont;
+	private UIContainer<?> modelCont, ascCont;
 	private UISeparator separator;
 	private AdvertSelectionComponent[] ascs = new AdvertSelectionComponent[0];
 	private AdvertView adview;
@@ -79,22 +79,22 @@ public class AdvertSelectionGui extends MalisisGui
 		UILabel labelModel = new UILabel(this, "malisisadvert.gui.model");
 		y += 12;
 
-		selModel = new UISelect<AdvertModel>(this, 150, AdvertModel.list()).setPosition(0, y);
+		selModel = new UISelect<>(this, 150, AdvertModel.list()).setPosition(0, y);
 		selModel.setLabelPattern("malisisadvert.gui.model.%s");
 		selModel.register(this);
 		y += 18;
 
-		modelCont = new UIContainer(this);
+		modelCont = new UIContainer<>(this);
 		modelCont.setPosition(5, y).setSize(1, 1);
 		y += 2;
 
 		separator = new UISeparator(this).setPosition(0, y).setColor(0x999999);
 		y += 5;
 
-		ascCont = new UIContainer<UIContainer>(this).setPosition(0, y);
+		ascCont = new UIContainer<>(this).setPosition(0, y);
 		ascCont.setPadding(1, 1);
 
-		UIContainer<UIContainer> left = new UIContainer<>(this, width / 2 - 15, height - 55).setPosition(5, 15);
+		UIContainer<?> left = new UIContainer<>(this, width / 2 - 15, height - 55).setPosition(5, 15);
 		left.add(labelModel);
 		left.add(selModel);
 		left.add(modelCont);
@@ -132,26 +132,25 @@ public class AdvertSelectionGui extends MalisisGui
 		//	asc.updateComponents();
 	}
 
-	public AdvertModel getModel()
+	public AdvertModel<?> getModel()
 	{
 		return selModel.getSelectedValue();
 	}
 
-	public void setModel(AdvertModel model)
+	public void setModel(AdvertModel<?> model)
 	{
 		modelCont.removeAll();
 
-		IModelVariant variant = tileEntity.getModel() == model ? tileEntity.getModelVariant() : model.defaultVariant(tileEntity
-				.isWallMounted());
+		ModelVariantContainer<?> container = new ModelVariantContainer<>(model, null, tileEntity.isWallMounted());
 
-		variantHeight = model.getGuiComponent(this, modelCont, variant);
+		variantHeight = container.getGuiComponent(this, modelCont);
 		modelCont.setSize(0, variantHeight);
 		separator.setPosition(0, 30 + variantHeight);
 		ascCont.setPosition(0, 35 + variantHeight);
 		setAscs(model);
 	}
 
-	public void setAscs(AdvertModel model)
+	public void setAscs(AdvertModel<?> model)
 	{
 		int count = ascs.length;
 		int y = 60 * count;
@@ -169,10 +168,12 @@ public class AdvertSelectionGui extends MalisisGui
 	@Override
 	public void updateGui()
 	{
-		if (selModel.getSelectedValue() != tileEntity.getModel())
+		ModelVariantContainer<?> container = tileEntity.getModelContainer();
+
+		if (selModel.getSelectedValue() != container.getModel())
 		{
-			selModel.setSelectedOption(tileEntity.getModel());
-			setModel(tileEntity.getModel());
+			selModel.setSelectedOption(container.getModel());
+			setModel(container.getModel());
 		}
 
 		AdvertSelection[] selections = tileEntity.getSelections();
@@ -185,7 +186,7 @@ public class AdvertSelectionGui extends MalisisGui
 	}
 
 	@Subscribe
-	public void onModelSelect(UISelect.SelectEvent<AdvertModel> event)
+	public void onModelSelect(UISelect.SelectEvent<AdvertModel<?>> event)
 	{
 		setModel(event.getNewValue());
 	}
@@ -198,12 +199,12 @@ public class AdvertSelectionGui extends MalisisGui
 
 		if (event.getComponent() == btnSave)
 		{
-			AdvertModel model = selModel.getSelectedValue();
-			IModelVariant variant = model.getVariantFromGui(modelCont);
-			AdvertSelection[] selections = new AdvertSelection[model.getAvailableSlots()];
+			ModelVariantContainer<?> container = ModelVariantContainer.fromGui(selModel, modelCont, tileEntity.isWallMounted());
+
+			AdvertSelection[] selections = new AdvertSelection[container.getModel().getAvailableSlots()];
 			for (int i = 0; i < ascs.length; i++)
 				selections[i] = ascs[i].getAdvertSelection();
-			AdvertSelectionMessage.saveSelection(tileEntity, selModel.getSelectedValue(), variant, selections);
+			AdvertSelectionMessage.saveSelection(tileEntity, container, selections);
 			close();
 		}
 	}

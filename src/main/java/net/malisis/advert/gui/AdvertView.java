@@ -138,7 +138,7 @@ public class AdvertView extends UIComponent<AdvertView>
 
 	private void forceRatio()
 	{
-		AdvertModel model = ((AdvertSelectionGui) getGui()).getModel();
+		AdvertModel<?> model = ((AdvertSelectionGui) getGui()).getModel();
 		float mratio = model.getWidth() / model.getHeight();
 
 		int dy = (int) (Math.abs(eX - sX) / mratio);

@@ -80,7 +80,7 @@ public class AdvertBlock extends MalisisBlock implements ITileEntityProvider, IC
 	}
 
 	@Override
-	protected List<IProperty> getProperties()
+	protected List<IProperty<?>> getProperties()
 	{
 		return Lists.newArrayList(WALL);
 	}
@@ -98,8 +98,8 @@ public class AdvertBlock extends MalisisBlock implements ITileEntityProvider, IC
 		if (te == null)
 			return;
 
-		te.setWallMounted((boolean) state.getValue(WALL));
-		te.setModel(null, null);
+		te.setWallMounted(state.getValue(WALL));
+		te.setModelContainer(null);
 	}
 
 	@Override
@@ -124,10 +124,10 @@ public class AdvertBlock extends MalisisBlock implements ITileEntityProvider, IC
 			return AABBUtils.identities();
 
 		AdvertTileEntity te = TileEntityUtils.getTileEntity(AdvertTileEntity.class, world, pos);
-		if (te == null || te.getModel() == null)
+		if (te == null)
 			return AABBUtils.identities();
 
-		return te.getModel().getBoundingBox(te.getModelVariant());
+		return te.getModelContainer().getBoundingBox();
 	}
 
 	@Override
@@ -145,7 +145,7 @@ public class AdvertBlock extends MalisisBlock implements ITileEntityProvider, IC
 	@Override
 	public int getMetaFromState(IBlockState state)
 	{
-		return super.getMetaFromState(state) + ((boolean) state.getValue(WALL) ? 8 : 0);
+		return super.getMetaFromState(state) + (state.getValue(WALL) ? 8 : 0);
 	}
 
 	@Override

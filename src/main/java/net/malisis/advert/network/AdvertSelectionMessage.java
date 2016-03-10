@@ -27,15 +27,14 @@ package net.malisis.advert.network;
 import io.netty.buffer.ByteBuf;
 import net.malisis.advert.MalisisAdvert;
 import net.malisis.advert.advert.AdvertSelection;
-import net.malisis.advert.model.AdvertModel;
 import net.malisis.advert.model.AdvertModel.IModelVariant;
+import net.malisis.advert.model.ModelVariantContainer;
 import net.malisis.advert.tileentity.AdvertTileEntity;
 import net.malisis.core.network.IMalisisMessageHandler;
 import net.malisis.core.network.MalisisMessage;
 import net.malisis.core.util.TileEntityUtils;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
@@ -45,46 +44,50 @@ import net.minecraftforge.fml.relauncher.Side;
  *
  */
 @MalisisMessage
-public class AdvertSelectionMessage implements IMalisisMessageHandler<AdvertSelectionMessage.Packet, IMessage>
+public class AdvertSelectionMessage implements IMalisisMessageHandler<AdvertSelectionMessage.Packet<? extends IModelVariant>, IMessage>
 {
 	public AdvertSelectionMessage()
 	{
-		MalisisAdvert.network.registerMessage(this, AdvertSelectionMessage.Packet.class, Side.SERVER);
+		MalisisAdvert.network.registerMessage(this, getPacketClass(), Side.SERVER);
+	}
+
+	@SuppressWarnings("unchecked")
+	private static Class<Packet<? extends IModelVariant>> getPacketClass()
+	{
+		return (Class<Packet<? extends IModelVariant>>) new Packet<>().getClass();
 	}
 
 	@Override
-	public void process(Packet message, MessageContext ctx)
+	public void process(Packet<? extends IModelVariant> message, MessageContext ctx)
 	{
 		World world = ctx.getServerHandler().playerEntity.worldObj;
 		AdvertTileEntity te = TileEntityUtils.getTileEntity(AdvertTileEntity.class, world, message.pos);
 		if (te == null)
 			return;
 
-		te.setModel(message.model, message.variant);
+		te.setModelContainer(message.container);
 		te.addSelections(message.selections);
 	}
 
-	public static void saveSelection(AdvertTileEntity tileEntity, AdvertModel model, IModelVariant variant, AdvertSelection[] selections)
+	public static <T extends IModelVariant> void saveSelection(AdvertTileEntity tileEntity, ModelVariantContainer<T> container, AdvertSelection[] selections)
 	{
-		Packet packet = new Packet(tileEntity, model, variant, selections);
+		Packet<T> packet = new Packet<>(tileEntity, container, selections);
 		MalisisAdvert.network.sendToServer(packet);
 	}
 
-	public static class Packet implements IMessage
+	public static class Packet<T extends IModelVariant> implements IMessage
 	{
 		private BlockPos pos;
-		private AdvertModel model;
-		private IModelVariant variant;
+		private ModelVariantContainer<T> container;
 		private AdvertSelection[] selections = new AdvertSelection[0];
 
 		public Packet()
 		{}
 
-		public Packet(AdvertTileEntity tileEntity, AdvertModel model, IModelVariant variant, AdvertSelection[] selections)
+		public Packet(AdvertTileEntity tileEntity, ModelVariantContainer<T> container, AdvertSelection[] selections)
 		{
 			this.pos = tileEntity.getPos();
-			this.model = model;
-			this.variant = variant;
+			this.container = container;
 			this.selections = selections;
 		}
 
@@ -92,13 +95,9 @@ public class AdvertSelectionMessage implements IMalisisMessageHandler<AdvertSele
 		public void fromBytes(ByteBuf buf)
 		{
 			pos = BlockPos.fromLong(buf.readLong());
+			container = ModelVariantContainer.fromBytes(buf);
 
-			model = AdvertModel.getModel(ByteBufUtils.readUTF8String(buf));
-			variant = model.defaultVariant(false);
-			variant.fromBytes(buf);
-
-			selections = new AdvertSelection[model.getAvailableSlots()];
-
+			selections = new AdvertSelection[container.getModel().getAvailableSlots()];
 			while (buf.isReadable())
 				selections[buf.readByte()] = AdvertSelection.fromBytes(buf);
 		}
@@ -108,8 +107,7 @@ public class AdvertSelectionMessage implements IMalisisMessageHandler<AdvertSele
 		{
 			buf.writeLong(pos.toLong());
 
-			ByteBufUtils.writeUTF8String(buf, model.getId());
-			variant.toBytes(buf);
+			container.toBytes(buf);
 
 			for (int i = 0; i < selections.length; i++)
 			{

@@ -87,7 +87,7 @@ public class AdvertSelectionComponent extends UIContainer<AdvertSelectionCompone
 				return advert.getName();
 			}
 		};
-		selAdvert = new UISelect<ClientAdvert>(gui, 150, ClientAdvert.listAdverts()).setPosition(0, 12).register(this);
+		selAdvert = new UISelect<>(gui, 150, ClientAdvert.listAdverts()).setPosition(0, 12).register(this);
 		selAdvert.setLabelFunction(labelFunc);
 
 		add(labelAdvert);
@@ -184,7 +184,7 @@ public class AdvertSelectionComponent extends UIContainer<AdvertSelectionCompone
 		if (isFocused())
 			return true;
 
-		for (UIComponent c : components)
+		for (UIComponent<?> c : components)
 			if (c.isFocused())
 				return true;
 		return false;
@@ -218,7 +218,7 @@ public class AdvertSelectionComponent extends UIContainer<AdvertSelectionCompone
 	}
 
 	@Subscribe
-	public void onFocus(FocusStateChange<UIComponent> event)
+	public void onFocus(FocusStateChange<?> event)
 	{
 		if (event.getState())
 			advertView.setAdvertSelection(advertSelection);

@@ -110,7 +110,7 @@ public class TriangularColumn extends AdvertModel<Variant>
 	}
 
 	@Override
-	public int getGuiComponent(MalisisGui gui, UIContainer container, Variant variant)
+	public int getGuiComponent(MalisisGui gui, UIContainer<?> container, Variant variant)
 	{
 		UICheckBox cb = new UICheckBox(gui, "malisisadvert.gui.model.triangular_column.rotate").setName("rotate");
 		cb.setChecked(variant.rotate);
@@ -120,7 +120,7 @@ public class TriangularColumn extends AdvertModel<Variant>
 	}
 
 	@Override
-	public Variant getVariantFromGui(UIContainer container)
+	public Variant getVariantFromGui(UIContainer<?> container)
 	{
 		Variant variant = new Variant();
 		UICheckBox cb = (UICheckBox) container.getComponent("rotate");

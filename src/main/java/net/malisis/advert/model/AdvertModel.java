@@ -50,7 +50,7 @@ import net.minecraft.util.ResourceLocation;
  */
 public abstract class AdvertModel<T extends IModelVariant> implements IIconRegister
 {
-	private static Map<String, AdvertModel> registry = new HashMap<>();
+	private static Map<String, AdvertModel<?>> registry = new HashMap<>();
 
 	protected String id;
 	protected String name;
@@ -160,9 +160,9 @@ public abstract class AdvertModel<T extends IModelVariant> implements IIconRegis
 
 	public abstract AxisAlignedBB[] getBoundingBox(T variant);
 
-	public abstract int getGuiComponent(MalisisGui gui, UIContainer container, T variant);
+	public abstract int getGuiComponent(MalisisGui gui, UIContainer<?> container, T variant);
 
-	public abstract T getVariantFromGui(UIContainer container);
+	public abstract T getVariantFromGui(UIContainer<?> container);
 
 	public abstract void renderBlock(AdvertRenderer renderer, AdvertTileEntity tileEntity, RenderParameters rp, T variant);
 
@@ -174,15 +174,15 @@ public abstract class AdvertModel<T extends IModelVariant> implements IIconRegis
 		return name;
 	}
 
-	public static AdvertModel getModel(String id)
+	public static AdvertModel<?> getModel(String id)
 	{
-		AdvertModel model = registry.get(id);
+		AdvertModel<?> model = registry.get(id);
 		if (model == null)
 			model = registry.get("panel");
 		return model;
 	}
 
-	public static void register(AdvertModel model)
+	public static void register(AdvertModel<?> model)
 	{
 		registry.put(model.getId(), model);
 		if (!MalisisCore.isClient())
@@ -192,7 +192,7 @@ public abstract class AdvertModel<T extends IModelVariant> implements IIconRegis
 		model.loadModelFile();
 	}
 
-	public static Collection<AdvertModel> list()
+	public static Collection<AdvertModel<?>> list()
 	{
 		return registry.values();
 	}
