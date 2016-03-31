@@ -31,7 +31,7 @@ import net.malisis.core.client.gui.component.container.UIListContainer;
 import net.malisis.core.client.gui.component.decoration.UILabel;
 import net.malisis.core.renderer.font.FontRenderOptions;
 import net.malisis.core.renderer.font.MalisisFont;
-import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.text.TextFormatting;
 
 import org.apache.commons.io.FileUtils;
 import org.lwjgl.opengl.GL11;
@@ -70,8 +70,7 @@ public class AdvertList extends UIListContainer<AdvertList, ClientAdvert>
 	@Override
 	public void drawEmtpy(GuiRenderer renderer, int mouseX, int mouseY, float partialTick)
 	{
-		emptyLabel.setText(EnumChatFormatting.ITALIC
-				+ (ClientAdvert.isPending() ? "malisisadvert.gui.querylist" : "malisisadvert.gui.noad"));
+		emptyLabel.setText(TextFormatting.ITALIC + (ClientAdvert.isPending() ? "malisisadvert.gui.querylist" : "malisisadvert.gui.noad"));
 		emptyLabel.draw(renderer, mouseX, mouseY, partialTick);
 	}
 

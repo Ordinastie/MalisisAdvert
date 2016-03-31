@@ -41,8 +41,8 @@ import net.malisis.core.renderer.RenderParameters;
 import net.malisis.core.renderer.icon.IIconRegister;
 import net.malisis.core.renderer.model.MalisisModel;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.AxisAlignedBB;
 
 /**
  * @author Ordinastie

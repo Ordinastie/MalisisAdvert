@@ -34,9 +34,9 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.INetHandlerPlayClient;
-import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.common.util.Constants.NBT;
 
 /**
@@ -67,8 +67,7 @@ public class AdvertTileEntity extends TileEntity
 
 		this.selectedAdverts = Arrays.copyOf(selectedAdverts, container.getModel().getAvailableSlots());
 
-		if (getWorld() != null)
-			getWorld().markBlockForUpdate(pos);
+		TileEntityUtils.notifyUpdate(this);
 
 	}
 
@@ -177,11 +176,11 @@ public class AdvertTileEntity extends TileEntity
 	{
 		NBTTagCompound nbt = new NBTTagCompound();
 		this.writeToNBT(nbt);
-		return new S35PacketUpdateTileEntity(pos, 0, nbt);
+		return new SPacketUpdateTileEntity(pos, 0, nbt);
 	}
 
 	@Override
-	public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity packet)
+	public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity packet)
 	{
 		this.readFromNBT(packet.getNbtCompound());
 		TileEntityUtils.updateGui(this);
