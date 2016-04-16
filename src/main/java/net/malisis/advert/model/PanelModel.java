@@ -46,8 +46,7 @@ import net.malisis.core.renderer.animation.transformation.Transformation;
 import net.malisis.core.renderer.element.Face;
 import net.malisis.core.renderer.element.Shape;
 import net.malisis.core.renderer.element.Vertex;
-import net.malisis.core.renderer.icon.MalisisIcon;
-import net.minecraft.client.renderer.texture.TextureMap;
+import net.malisis.core.renderer.icon.Icon;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -71,12 +70,12 @@ public class PanelModel extends AdvertModel<Variant>
 	private Shape displayTop;
 	private Shape displayBottom;
 	@SideOnly(Side.CLIENT)
-	private MalisisIcon panelIcon;
+	private Icon panelIcon;
 
 	private AnimationRenderer ar;
 	private ChainedTransformation topTransform;
 	private ChainedTransformation bottomTransform;
-	private MalisisIcon baseIcon;
+	private Icon baseIcon;
 	private PanelData panelData;
 
 	public PanelModel()
@@ -91,7 +90,7 @@ public class PanelModel extends AdvertModel<Variant>
 		this.placeHolder = new ResourceLocation(MalisisAdvert.modid, "textures/blocks/MA23.png");
 
 		if (MalisisCore.isClient())
-			panelIcon = new MalisisIcon(MalisisAdvert.modid + ":blocks/panel");
+			panelIcon = Icon.from(MalisisAdvert.modid + ":blocks/panel");
 	}
 
 	@Override
@@ -106,7 +105,7 @@ public class PanelModel extends AdvertModel<Variant>
 		model.addShape(displayBottom);
 
 		ar = new AnimationRenderer();
-		baseIcon = new MalisisIcon();
+		baseIcon = new Icon();
 		panelData = new PanelData();
 
 		int speed = 60;//3s
@@ -119,12 +118,6 @@ public class PanelModel extends AdvertModel<Variant>
 		pt1 = new PanelTransform(false).forTicks(speed, delay).movement(Transformation.SINUSOIDAL);
 		pt2 = new PanelTransform(false).forTicks(speed, delay).reversed(true).movement(Transformation.SINUSOIDAL);
 		bottomTransform = new ChainedTransformation(pt1, pt2).loop(-1);
-	}
-
-	@Override
-	public void registerIcons(TextureMap map)
-	{
-		panelIcon = panelIcon.register(map);
 	}
 
 	@Override
@@ -263,12 +256,12 @@ public class PanelModel extends AdvertModel<Variant>
 		private double y, Y;
 		private float v, V;
 		private Shape shape;
-		private MalisisIcon icon = new MalisisIcon();
+		private Icon icon = new Icon();
 
 		public void set(Shape shape, AdvertSelection as)
 		{
 			this.shape = shape;
-			MalisisIcon icon = as != null ? (MalisisIcon) as.getIcon() : null;
+			Icon icon = as != null ? (Icon) as.getIcon() : null;
 			if (icon == null)
 				icon = baseIcon;
 			this.icon.copyFrom(icon);

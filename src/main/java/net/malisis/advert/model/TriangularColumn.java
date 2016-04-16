@@ -39,8 +39,7 @@ import net.malisis.core.renderer.animation.AnimationRenderer;
 import net.malisis.core.renderer.animation.transformation.Rotation;
 import net.malisis.core.renderer.element.Face;
 import net.malisis.core.renderer.element.Shape;
-import net.malisis.core.renderer.icon.MalisisIcon;
-import net.minecraft.client.renderer.texture.TextureMap;
+import net.malisis.core.renderer.icon.Icon;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -59,7 +58,7 @@ public class TriangularColumn extends AdvertModel<Variant>
 	private Shape topBottom;
 	private Shape panels;
 	@SideOnly(Side.CLIENT)
-	private MalisisIcon icon;
+	private Icon icon;
 
 	private AnimationRenderer ar;
 	private Rotation rotation;
@@ -75,7 +74,7 @@ public class TriangularColumn extends AdvertModel<Variant>
 		this.placeHolder = new ResourceLocation(MalisisAdvert.modid, "textures/blocks/MA23.png");
 
 		if (MalisisCore.isClient())
-			icon = new MalisisIcon(MalisisAdvert.modid + ":blocks/triangular_column");
+			icon = Icon.from(MalisisAdvert.modid + ":blocks/triangular_column");
 	}
 
 	@Override
@@ -94,12 +93,6 @@ public class TriangularColumn extends AdvertModel<Variant>
 	public Variant defaultVariant(boolean wallMounted)
 	{
 		return new Variant();
-	}
-
-	@Override
-	public void registerIcons(TextureMap map)
-	{
-		icon = icon.register(map);
 	}
 
 	@Override

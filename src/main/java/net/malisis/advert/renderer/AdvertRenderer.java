@@ -35,7 +35,7 @@ import net.malisis.core.renderer.RenderType;
 import net.malisis.core.renderer.element.Face;
 import net.malisis.core.renderer.element.Shape;
 import net.malisis.core.renderer.element.shape.Cube;
-import net.malisis.core.renderer.icon.MalisisIcon;
+import net.malisis.core.renderer.icon.Icon;
 import net.malisis.core.renderer.model.MalisisModel;
 import net.malisis.core.util.EnumFacingUtils;
 import net.minecraft.util.EnumFacing;
@@ -101,7 +101,7 @@ public class AdvertRenderer extends MalisisRenderer<AdvertTileEntity>
 		renderAdvertFace(face, as, as != null ? as.getIcon() : null);
 	}
 
-	public void renderAdvertFace(Face face, AdvertSelection as, MalisisIcon icon)
+	public void renderAdvertFace(Face face, AdvertSelection as, Icon icon)
 	{
 		ClientAdvert advert = null;
 

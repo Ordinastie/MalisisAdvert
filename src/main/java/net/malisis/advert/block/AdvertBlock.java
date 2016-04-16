@@ -69,15 +69,15 @@ public class AdvertBlock extends MalisisBlock implements ITileEntityProvider, IC
 
 	public AdvertBlock()
 	{
-		super(Material.iron);
+		super(Material.IRON);
 		setResistance(6000);
 		setHardness(6000);
 		setName("advertBlock");
 		setCreativeTab(MalisisAdvert.tab);
 		setTexture(MalisisAdvert.modid + ":blocks/MA");
 
-		addComponent(new DirectionalComponent(DirectionalComponent.ALL, (state, side, placer) -> side == EnumFacing.UP ? EntityUtils
-				.getEntityFacing(placer).getOpposite() : side));
+		addComponent(new DirectionalComponent(DirectionalComponent.ALL,
+				(state, side, placer) -> side == EnumFacing.UP ? EntityUtils.getEntityFacing(placer).getOpposite() : side));
 	}
 
 	@Override

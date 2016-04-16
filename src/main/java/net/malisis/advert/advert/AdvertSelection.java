@@ -25,7 +25,7 @@
 package net.malisis.advert.advert;
 
 import io.netty.buffer.ByteBuf;
-import net.malisis.core.renderer.icon.MalisisIcon;
+import net.malisis.core.renderer.icon.Icon;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -37,7 +37,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class AdvertSelection
 {
 	public int id;
-	public MalisisIcon icon;
+	public Icon icon;
 	public float u = 0;
 	public float v = 0;
 	public float U = 1;
@@ -68,10 +68,10 @@ public class AdvertSelection
 	}
 
 	@SideOnly(Side.CLIENT)
-	public MalisisIcon getIcon()
+	public Icon getIcon()
 	{
 		if (icon == null)
-			icon = new MalisisIcon("AS." + id, u, v, U, V);
+			icon = new Icon("AS." + id, u, v, U, V);
 		return icon;
 	}
 

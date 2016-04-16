@@ -34,11 +34,9 @@ import net.malisis.advert.model.AdvertModel.IModelVariant;
 import net.malisis.advert.renderer.AdvertRenderer;
 import net.malisis.advert.tileentity.AdvertTileEntity;
 import net.malisis.core.MalisisCore;
-import net.malisis.core.MalisisRegistry;
 import net.malisis.core.client.gui.MalisisGui;
 import net.malisis.core.client.gui.component.container.UIContainer;
 import net.malisis.core.renderer.RenderParameters;
-import net.malisis.core.renderer.icon.IIconRegister;
 import net.malisis.core.renderer.model.MalisisModel;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
@@ -48,7 +46,7 @@ import net.minecraft.util.math.AxisAlignedBB;
  * @author Ordinastie
  *
  */
-public abstract class AdvertModel<T extends IModelVariant> implements IIconRegister
+public abstract class AdvertModel<T extends IModelVariant>
 {
 	private static Map<String, AdvertModel<?>> registry = new HashMap<>();
 
@@ -188,7 +186,6 @@ public abstract class AdvertModel<T extends IModelVariant> implements IIconRegis
 		if (!MalisisCore.isClient())
 			return;
 
-		MalisisRegistry.registerIconRegister(model);
 		model.loadModelFile();
 	}
 
