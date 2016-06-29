@@ -32,8 +32,6 @@ import net.malisis.core.util.TileEntityUtils;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.Packet;
-import net.minecraft.network.play.INetHandlerPlayClient;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -131,7 +129,7 @@ public class AdvertTileEntity extends TileEntity
 	}
 
 	@Override
-	public void writeToNBT(NBTTagCompound tagCompound)
+	public NBTTagCompound writeToNBT(NBTTagCompound tagCompound)
 	{
 		super.writeToNBT(tagCompound);
 
@@ -152,6 +150,7 @@ public class AdvertTileEntity extends TileEntity
 		}
 
 		tagCompound.setTag("selections", asList);
+		return tagCompound;
 	}
 
 	@Override
@@ -172,7 +171,7 @@ public class AdvertTileEntity extends TileEntity
 	}
 
 	@Override
-	public Packet<INetHandlerPlayClient> getDescriptionPacket()
+	public SPacketUpdateTileEntity getUpdatePacket()
 	{
 		NBTTagCompound nbt = new NBTTagCompound();
 		this.writeToNBT(nbt);

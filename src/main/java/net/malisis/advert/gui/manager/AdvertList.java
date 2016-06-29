@@ -68,7 +68,7 @@ public class AdvertList extends UIListContainer<AdvertList, ClientAdvert>
 	}
 
 	@Override
-	public void drawEmtpy(GuiRenderer renderer, int mouseX, int mouseY, float partialTick)
+	public void drawEmpty(GuiRenderer renderer, int mouseX, int mouseY, float partialTick)
 	{
 		emptyLabel.setText(TextFormatting.ITALIC + (ClientAdvert.isPending() ? "malisisadvert.gui.querylist" : "malisisadvert.gui.noad"));
 		emptyLabel.draw(renderer, mouseX, mouseY, partialTick);
