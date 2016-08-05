@@ -108,10 +108,12 @@ public class AdvertSelectionGui extends MalisisGui
 		right.add(adview);
 
 		//SAVE/CLOSE
-		btnSave = new UIButton(this, "malisisadvert.gui.save").setPosition(-32, 0, Anchor.BOTTOM | Anchor.CENTER).setSize(60)
-				.register(this);
-		btnClose = new UIButton(this, "malisisadvert.gui.close").setPosition(32, 0, Anchor.BOTTOM | Anchor.CENTER).setSize(60)
-				.register(this);
+		btnSave = new UIButton(this, "malisisadvert.gui.save").setPosition(-32, 0, Anchor.BOTTOM | Anchor.CENTER)
+																.setSize(60)
+																.register(this);
+		btnClose = new UIButton(this, "malisisadvert.gui.close").setPosition(32, 0, Anchor.BOTTOM | Anchor.CENTER)
+																.setSize(60)
+																.register(this);
 
 		//WINDOW
 		UIWindow window = new UIWindow(this, "malisisadvert.gui.advertselection", width, height);
@@ -141,7 +143,9 @@ public class AdvertSelectionGui extends MalisisGui
 	{
 		modelCont.removeAll();
 
-		ModelVariantContainer<?> container = new ModelVariantContainer<>(model, null, tileEntity.isWallMounted());
+		ModelVariantContainer<?> container = tileEntity.getModelContainer();
+		if (container.getModel() != model)
+			container = new ModelVariantContainer<>(model, null, tileEntity.isWallMounted());
 
 		variantHeight = container.getGuiComponent(this, modelCont);
 		modelCont.setSize(0, variantHeight);
