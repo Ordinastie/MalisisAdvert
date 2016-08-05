@@ -171,6 +171,12 @@ public class AdvertTileEntity extends TileEntity
 	}
 
 	@Override
+	public NBTTagCompound getUpdateTag()
+	{
+		return writeToNBT(new NBTTagCompound());
+	}
+
+	@Override
 	public SPacketUpdateTileEntity getUpdatePacket()
 	{
 		NBTTagCompound nbt = new NBTTagCompound();
