@@ -51,8 +51,6 @@ public class AdvertRenderer extends MalisisRenderer<AdvertTileEntity>
 	private Shape cube = new Cube();
 	private RenderParameters rp = new RenderParameters();
 
-	private AdvertTileEntity tileEntity;
-
 	public AdvertRenderer()
 	{
 		registerFor(AdvertTileEntity.class);
@@ -64,13 +62,6 @@ public class AdvertRenderer extends MalisisRenderer<AdvertTileEntity>
 		rp.icon.reset();
 		rp.applyTexture.reset();
 
-		if (renderType == RenderType.ITEM)
-		{
-			drawShape(cube, rp);
-			return;
-		}
-
-		tileEntity = super.tileEntity;
 		if (tileEntity == null || tileEntity.getModelContainer() == null)
 		{
 			if (renderType == RenderType.BLOCK)

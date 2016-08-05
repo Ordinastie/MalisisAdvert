@@ -125,6 +125,7 @@ public class TriangularColumn extends AdvertModel<Variant>
 	@Override
 	public void renderBlock(AdvertRenderer renderer, AdvertTileEntity tileEntity, RenderParameters rp, Variant variant)
 	{
+		rp.rotateIcon.set(false);
 		rp.icon.set(icon);
 		renderer.drawShape(base, rp);
 	}
@@ -136,6 +137,7 @@ public class TriangularColumn extends AdvertModel<Variant>
 		if (variant.rotate)
 			ar.animate(topBottom, rotation);
 
+		topBottom.applyMatrix();
 		renderer.next(GL11.GL_TRIANGLES);
 		rp.icon.set(icon);
 		renderer.drawShape(topBottom, rp);
@@ -143,11 +145,9 @@ public class TriangularColumn extends AdvertModel<Variant>
 
 		//render advert faces :
 		if (variant.rotate)
-		{
 			ar.animate(panels, rotation);
-			panels.applyMatrix();
-		}
 
+		panels.applyMatrix();
 		for (int i = 0; i < panels.getFaces().length; i++)
 		{
 			Face face = panels.getFaces()[i];
