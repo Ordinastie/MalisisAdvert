@@ -59,8 +59,9 @@ public class AdvertRenderer extends MalisisRenderer<AdvertTileEntity>
 	@Override
 	public void render()
 	{
-		rp.icon.reset();
-		rp.applyTexture.reset();
+		rp.reset();
+		rp.rotateIcon.set(false);
+		//rp.applyTexture.reset();
 
 		if (tileEntity == null || tileEntity.getModelContainer() == null)
 		{

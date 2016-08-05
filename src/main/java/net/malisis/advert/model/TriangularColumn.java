@@ -125,7 +125,6 @@ public class TriangularColumn extends AdvertModel<Variant>
 	@Override
 	public void renderBlock(AdvertRenderer renderer, AdvertTileEntity tileEntity, RenderParameters rp, Variant variant)
 	{
-		rp.rotateIcon.set(false);
 		rp.icon.set(icon);
 		renderer.drawShape(base, rp);
 	}
