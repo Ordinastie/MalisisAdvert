@@ -86,14 +86,16 @@ public class AdvertList extends UIListContainer<AdvertList, ClientAdvert>
 		rp.colorMultiplier.set(color);
 
 		shape.resetState();
-		shape.setSize(getWidth(), getElementHeight(advert));
+		shape.setSize(getContentWidth(), getElementHeight(advert));
+		shape.translate(1, 1);
 		renderer.drawShape(shape, rp);
 
 		renderer.next(GL11.GL_LINE_LOOP);
 		GL11.glLineWidth(2);
 
 		shape.resetState();
-		shape.setSize(getWidth(), getElementHeight(advert));
+		shape.setSize(getContentWidth(), getElementHeight(advert));
+		shape.translate(1, 1);
 		rp.colorMultiplier.set(0x000000);
 		renderer.drawShape(shape, rp);
 
@@ -105,12 +107,12 @@ public class AdvertList extends UIListContainer<AdvertList, ClientAdvert>
 	public void drawElementForeground(GuiRenderer renderer, int mouseX, int mouseY, float partialTick, ClientAdvert advert, boolean isHovered)
 	{
 		//Name
-		int x = 2;
+		int x = 3;
 		fro.color = isHovered ? 0xFFFF99 : 0xFFFFFF;
 		fro.shadow = true;
 		fro.fontScale = 1;
 		fro.saveDefault();
-		renderer.drawText(font, advert.getName(), x, 2, 0, fro);
+		renderer.drawText(font, advert.getName(), x, 3, 0, fro);
 		x += font.getStringWidth(advert.getName(), fro) + 6;
 
 		//Image Dimensions
@@ -120,16 +122,16 @@ public class AdvertList extends UIListContainer<AdvertList, ClientAdvert>
 		fro.fontScale = 2F / 3F;
 		fro.saveDefault();
 		String dim = advert.getWidth() + "x" + advert.getHeight();
-		renderer.drawText(font, dim, x, 5, 0, fro);
+		renderer.drawText(font, dim, x, 6, 0, fro);
 		x += font.getStringWidth(dim, fro) + 3;
 
 		//File size
 		String size = FileUtils.byteCountToDisplaySize(advert.getSize());
-		renderer.drawText(font, "(" + size + ")", x, 5, 0, fro);
+		renderer.drawText(font, "(" + size + ")", x, 6, 0, fro);
 
 		//URL
 		String url = font.clipString(advert.getUrl(), getWidth() - 6, fro, true);
-		renderer.drawText(font, url, 2, 13, 0, fro);
+		renderer.drawText(font, url, 3, 14, 0, fro);
 	}
 
 }
