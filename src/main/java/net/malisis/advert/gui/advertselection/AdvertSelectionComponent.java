@@ -33,7 +33,6 @@ import net.malisis.core.client.gui.MalisisGui;
 import net.malisis.core.client.gui.component.UIComponent;
 import net.malisis.core.client.gui.component.container.UIContainer;
 import net.malisis.core.client.gui.component.decoration.UILabel;
-import net.malisis.core.client.gui.component.interaction.UIButton;
 import net.malisis.core.client.gui.component.interaction.UISelect;
 import net.malisis.core.client.gui.component.interaction.UITextField;
 import net.malisis.core.client.gui.event.component.StateChangeEvent.FocusStateChange;
@@ -193,7 +192,7 @@ public class AdvertSelectionComponent extends UIContainer<AdvertSelectionCompone
 	@Override
 	public boolean onClick(int x, int y)
 	{
-		advertView.setAdvertSelection(advertSelection);
+		advertView.setAdvertSelection(this, advertSelection);
 		return super.onClick(x, y);
 	}
 
@@ -214,19 +213,13 @@ public class AdvertSelectionComponent extends UIContainer<AdvertSelectionCompone
 	public void onSelect(UISelect.SelectEvent<Advert> event)
 	{
 		setAdvertSelection(new AdvertSelection(event.getNewValue().getId()));
-		advertView.setAdvertSelection(advertSelection);
+		advertView.setAdvertSelection(this, advertSelection);
 	}
 
 	@Subscribe
 	public void onFocus(FocusStateChange<?> event)
 	{
 		if (event.getState())
-			advertView.setAdvertSelection(advertSelection);
-	}
-
-	@Subscribe
-	public void onButtonClick(UIButton.ClickEvent event)
-	{
-		((AdvertSelectionGui) getGui()).viewAdvertSelection(advertSelection);
+			advertView.setAdvertSelection(this, advertSelection);
 	}
 }

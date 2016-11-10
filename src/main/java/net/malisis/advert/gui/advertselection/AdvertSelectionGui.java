@@ -124,16 +124,6 @@ public class AdvertSelectionGui extends MalisisGui
 		TileEntityUtils.linkTileEntityToGui(tileEntity, this);
 	}
 
-	public void viewAdvertSelection(AdvertSelection advertSelection)
-	{
-		adview.setAdvertSelection(advertSelection);
-	}
-
-	public void updateAdvertComponent()
-	{
-		//	asc.updateComponents();
-	}
-
 	public AdvertModel<?> getModel()
 	{
 		return selModel.getSelectedValue();

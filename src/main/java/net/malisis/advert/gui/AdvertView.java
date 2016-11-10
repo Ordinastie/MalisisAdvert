@@ -28,6 +28,7 @@ import java.util.List;
 
 import net.malisis.advert.advert.AdvertSelection;
 import net.malisis.advert.advert.ClientAdvert;
+import net.malisis.advert.gui.advertselection.AdvertSelectionComponent;
 import net.malisis.advert.gui.advertselection.AdvertSelectionGui;
 import net.malisis.advert.model.AdvertModel;
 import net.malisis.core.client.gui.GuiRenderer;
@@ -51,6 +52,7 @@ public class AdvertView extends UIComponent<AdvertView>
 	private MalisisFont font = MalisisFont.minecraftFont;
 	private FontRenderOptions fro;
 	private boolean editable = false;
+	private AdvertSelectionComponent asc;
 	private AdvertSelection advertSelection;
 	private int sX, sY, eX, eY;
 	private ClientAdvert advert;
@@ -72,8 +74,9 @@ public class AdvertView extends UIComponent<AdvertView>
 		this.advert = advert;
 	}
 
-	public void setAdvertSelection(AdvertSelection advertSelection)
+	public void setAdvertSelection(AdvertSelectionComponent asc, AdvertSelection advertSelection)
 	{
+		this.asc = asc;
 		this.advertSelection = advertSelection;
 		if (advertSelection != null)
 		{
@@ -119,21 +122,20 @@ public class AdvertView extends UIComponent<AdvertView>
 		sX = sY = 0;
 		eX = advert.getTexture().getWidth();
 		eY = advert.getTexture().getHeight();
-		if (advertSelection != null)
-			advertSelection.setPixels(sX, sY, eX, eY);
-		updateComponents();
+
+		if (advertSelection == null)
+			return;
+		advertSelection.setPixels(sX, sY, eX, eY);
+		asc.updateComponents();
 	}
 
 	private void applyUVs()
 	{
-		if (advertSelection != null)
-			advertSelection.setPixels(sX, sY, eX, eY);
-		updateComponents();
-	}
+		if (advertSelection == null)
+			return;
 
-	private void updateComponents()
-	{
-		((AdvertSelectionGui) getGui()).updateAdvertComponent();
+		advertSelection.setPixels(sX, sY, eX, eY);
+		asc.updateComponents();
 	}
 
 	private void forceRatio()
