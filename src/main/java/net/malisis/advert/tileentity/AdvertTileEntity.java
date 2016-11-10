@@ -28,6 +28,7 @@ import java.util.Arrays;
 
 import net.malisis.advert.advert.AdvertSelection;
 import net.malisis.advert.model.ModelVariantContainer;
+import net.malisis.core.block.IBoundingBox;
 import net.malisis.core.util.TileEntityUtils;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -194,6 +195,6 @@ public class AdvertTileEntity extends TileEntity
 	@Override
 	public AxisAlignedBB getRenderBoundingBox()
 	{
-		return TileEntityUtils.getRenderingBounds(this);
+		return IBoundingBox.getRenderingBounds(worldObj, pos);
 	}
 }
