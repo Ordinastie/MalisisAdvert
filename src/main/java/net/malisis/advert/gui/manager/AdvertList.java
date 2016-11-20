@@ -29,7 +29,7 @@ import net.malisis.core.client.gui.GuiRenderer;
 import net.malisis.core.client.gui.MalisisGui;
 import net.malisis.core.client.gui.component.container.UIListContainer;
 import net.malisis.core.client.gui.component.decoration.UILabel;
-import net.malisis.core.renderer.font.FontRenderOptions;
+import net.malisis.core.renderer.font.FontOptions;
 import net.malisis.core.renderer.font.MalisisFont;
 import net.minecraft.util.text.TextFormatting;
 
@@ -43,7 +43,12 @@ import org.lwjgl.opengl.GL11;
 public class AdvertList extends UIListContainer<AdvertList, ClientAdvert>
 {
 	private MalisisFont font = MalisisFont.minecraftFont;
-	private FontRenderOptions fro;
+	private FontOptions nameOptions = FontOptions.builder().color(0xFFFFFF).shadow().build();
+	private FontOptions nameHoverOptions = FontOptions.builder().color(0xFFFF99).shadow().build();
+
+	private FontOptions fontOptions = FontOptions.builder().scale(2F / 3F).color(0x444444).build();
+	private FontOptions hoverFontOptions = FontOptions.builder().scale(2F / 3F).color(0x666666).build();
+
 	private UILabel emptyLabel;
 
 	public AdvertList(MalisisGui gui)
@@ -51,8 +56,6 @@ public class AdvertList extends UIListContainer<AdvertList, ClientAdvert>
 		super(gui);
 		emptyLabel = new UILabel(gui);
 		emptyLabel.setParent(this);
-
-		fro = new FontRenderOptions();
 	}
 
 	public AdvertList(MalisisGui gui, int width, int height)
@@ -108,30 +111,23 @@ public class AdvertList extends UIListContainer<AdvertList, ClientAdvert>
 	{
 		//Name
 		int x = 3;
-		fro.color = isHovered ? 0xFFFF99 : 0xFFFFFF;
-		fro.shadow = true;
-		fro.fontScale = 1;
-		fro.saveDefault();
-		renderer.drawText(font, advert.getName(), x, 3, 0, fro);
-		x += font.getStringWidth(advert.getName(), fro) + 6;
+		renderer.drawText(font, advert.getName(), x, 3, 0, isHovered ? nameHoverOptions : nameOptions);
+		x += font.getStringWidth(advert.getName(), nameOptions) + 6;
 
+		FontOptions options = isHovered ? hoverFontOptions : this.fontOptions;
 		//Image Dimensions
 		x = Math.max(70, x);
-		fro.color = isHovered ? 0x666666 : 0x444444;
-		fro.shadow = false;
-		fro.fontScale = 2F / 3F;
-		fro.saveDefault();
 		String dim = advert.getWidth() + "x" + advert.getHeight();
-		renderer.drawText(font, dim, x, 6, 0, fro);
-		x += font.getStringWidth(dim, fro) + 3;
+		renderer.drawText(font, dim, x, 6, 0, options);
+		x += font.getStringWidth(dim, options) + 3;
 
 		//File size
 		String size = FileUtils.byteCountToDisplaySize(advert.getSize());
-		renderer.drawText(font, "(" + size + ")", x, 6, 0, fro);
+		renderer.drawText(font, "(" + size + ")", x, 6, 0, options);
 
 		//URL
-		String url = font.clipString(advert.getUrl(), getWidth() - 6, fro, true);
-		renderer.drawText(font, url, 3, 14, 0, fro);
+		String url = font.clipString(advert.getUrl(), getWidth() - 6, options, true);
+		renderer.drawText(font, url, 3, 14, 0, options);
 	}
 
 }
