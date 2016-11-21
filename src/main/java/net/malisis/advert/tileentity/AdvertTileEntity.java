@@ -195,6 +195,6 @@ public class AdvertTileEntity extends TileEntity
 	@Override
 	public AxisAlignedBB getRenderBoundingBox()
 	{
-		return IBoundingBox.getRenderingBounds(worldObj, pos);
+		return IBoundingBox.getRenderingBounds(world, pos);
 	}
 }

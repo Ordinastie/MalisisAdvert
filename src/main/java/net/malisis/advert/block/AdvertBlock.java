@@ -87,9 +87,10 @@ public class AdvertBlock extends MalisisBlock implements ITileEntityProvider, IC
 	}
 
 	@Override
-	public IBlockState onBlockPlaced(World world, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
+	public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer, ItemStack itemStack)
 	{
-		return super.onBlockPlaced(world, pos, facing, hitX, hitY, hitZ, meta, placer).withProperty(WALL, facing != EnumFacing.UP);
+		return super.getStateForPlacement(world, pos, facing, hitX, hitY, hitZ, meta, placer, itemStack).withProperty(WALL,
+				facing != EnumFacing.UP);
 	}
 
 	@Override
@@ -110,7 +111,7 @@ public class AdvertBlock extends MalisisBlock implements ITileEntityProvider, IC
 			return true;
 
 		AdvertTileEntity te = TileEntityUtils.getTileEntity(AdvertTileEntity.class, world, pos);
-		if (te == null || !player.canCommandSenderUseCommand(0, "malisisadvert"))
+		if (te == null || !player.canUseCommand(0, "malisisadvert"))
 			return true;
 
 		AdvertGuiMessage.openSelection((EntityPlayerMP) player, te);

@@ -32,7 +32,6 @@ import net.malisis.advert.tileentity.AdvertTileEntity;
 import net.malisis.core.network.IMalisisMessageHandler;
 import net.malisis.core.network.MalisisMessage;
 import net.malisis.core.util.TileEntityUtils;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -61,7 +60,8 @@ public class AdvertGuiMessage implements IMalisisMessageHandler<AdvertGuiMessage
 			new AdvertManagerGui().display();
 		if (message.type == ADVERTSELECTION)
 		{
-			AdvertTileEntity tileEntity = TileEntityUtils.getTileEntity(AdvertTileEntity.class, Minecraft.getMinecraft().theWorld,
+			AdvertTileEntity tileEntity = TileEntityUtils.getTileEntity(AdvertTileEntity.class,
+					IMalisisMessageHandler.getWorld(ctx),
 					message.pos);
 			if (tileEntity != null)
 				new AdvertSelectionGui(tileEntity).display();

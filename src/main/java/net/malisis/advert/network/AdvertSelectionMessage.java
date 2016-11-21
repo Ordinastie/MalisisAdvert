@@ -60,7 +60,7 @@ public class AdvertSelectionMessage implements IMalisisMessageHandler<AdvertSele
 	@Override
 	public void process(Packet<? extends IModelVariant> message, MessageContext ctx)
 	{
-		World world = ctx.getServerHandler().playerEntity.worldObj;
+		World world = IMalisisMessageHandler.getWorld(ctx);
 		AdvertTileEntity te = TileEntityUtils.getTileEntity(AdvertTileEntity.class, world, message.pos);
 		if (te == null)
 			return;
