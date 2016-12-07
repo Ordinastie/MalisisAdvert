@@ -17,6 +17,7 @@ malisisadvert.gui.querylist=Downloading advert list.
 #Advert Selection
 malisisadvert.gui.model.panel=Panel
 malisisadvert.gui.model.triangular_column=Triangular Column
+malisisadvert.gui.model.billboard=Billboard
 
 malisisadvert.gui.model.panel.type=Type
 malisisadvert.gui.model.panel.SMALL=Small foot

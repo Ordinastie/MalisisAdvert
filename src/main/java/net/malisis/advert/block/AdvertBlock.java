@@ -165,6 +165,6 @@ public class AdvertBlock extends MalisisBlock implements ITileEntityProvider, IC
 	@Override
 	public int blockRange()
 	{
-		return 3;
+		return 5;
 	}
 }

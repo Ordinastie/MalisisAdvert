@@ -99,7 +99,8 @@ public class ModelVariantContainer<T extends IModelVariant>
 	public void toBytes(ByteBuf buf)
 	{
 		ByteBufUtils.writeUTF8String(buf, model.getId());
-		variant.toBytes(buf);
+		if (variant != null)
+			variant.toBytes(buf);
 	}
 
 	public static <T extends IModelVariant> ModelVariantContainer<T> fromNBT(AdvertTileEntity te, NBTTagCompound nbt)
@@ -109,7 +110,8 @@ public class ModelVariantContainer<T extends IModelVariant>
 		model.readFromNBT(te, nbt);
 
 		T variant = model.defaultVariant(te.isWallMounted());
-		variant.readFromNBT(nbt);
+		if (variant != null)
+			variant.readFromNBT(nbt);
 
 		return new ModelVariantContainer<>(model, variant, te.isWallMounted());
 	}
@@ -128,10 +130,11 @@ public class ModelVariantContainer<T extends IModelVariant>
 		@SuppressWarnings("unchecked")
 		AdvertModel<T> model = (AdvertModel<T>) AdvertModel.getModel(ByteBufUtils.readUTF8String(buf));
 		T variant = model.defaultVariant(false);
-		variant.fromBytes(buf);
+		if (variant != null)
+			variant.fromBytes(buf);
 
 		//trust variant wallMounted is coherent with te state
-		return new ModelVariantContainer<>(model, variant, variant.isWallMounted());
+		return new ModelVariantContainer<>(model, variant, variant != null ? variant.isWallMounted() : false);
 	}
 
 	public static ModelVariantContainer<?> getDefaultContainer()

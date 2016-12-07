@@ -3,6 +3,7 @@ package net.malisis.advert;
 import static net.malisis.advert.MalisisAdvert.Blocks.*;
 import net.malisis.advert.block.AdvertBlock;
 import net.malisis.advert.model.AdvertModel;
+import net.malisis.advert.model.BillboardModel;
 import net.malisis.advert.model.PanelModel;
 import net.malisis.advert.model.TriangularColumn;
 import net.malisis.advert.tileentity.AdvertTileEntity;
@@ -81,6 +82,7 @@ public class MalisisAdvert implements IMalisisMod
 	{
 		AdvertModel.register(new PanelModel());
 		AdvertModel.register(new TriangularColumn());
+		AdvertModel.register(new BillboardModel());
 	}
 
 	@EventHandler
