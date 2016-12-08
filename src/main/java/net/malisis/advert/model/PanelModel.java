@@ -61,7 +61,9 @@ public class PanelModel extends AdvertModel<Variant>
 {
 	public enum FootType
 	{
-		WALL, SMALL, FULL,
+		WALL,
+		SMALL,
+		FULL,
 	}
 
 	private Shape smallFoot;
@@ -91,6 +93,12 @@ public class PanelModel extends AdvertModel<Variant>
 
 		if (MalisisCore.isClient())
 			panelIcon = Icon.from(MalisisAdvert.modid + ":blocks/panel");
+	}
+
+	@Override
+	public boolean canBeWallMounted()
+	{
+		return true;
 	}
 
 	@Override
@@ -151,13 +159,14 @@ public class PanelModel extends AdvertModel<Variant>
 	}
 
 	@Override
-	public int getGuiComponent(MalisisGui gui, UIContainer<?> container, Variant variant)
+	public int getGuiComponent(MalisisGui gui, UIContainer<?> container, Variant variant, boolean wallMounted)
 	{
 		UILabel label = new UILabel(gui, "malisisadvert.gui.model.panel.type");
 		UISelect<FootType> select = new UISelect<>(gui, 150, Arrays.asList(FootType.values())).setName("footType");
 		select.setLabelPattern("malisisadvert.gui.model.panel.%s");
 		select.setPosition(0, 12);
 		select.setSelectedOption(variant.type);
+		select.setDisablePredicate(t -> wallMounted == (t != FootType.WALL));
 
 		container.add(label);
 		container.add(select);

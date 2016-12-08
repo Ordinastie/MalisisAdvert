@@ -44,9 +44,11 @@ public class ModelVariantContainer<T extends IModelVariant>
 {
 	private AdvertModel<T> model;
 	private T variant;
+	private boolean wallMounted = false;
 
 	public ModelVariantContainer(AdvertModel<T> model, T variant, boolean wallMounted)
 	{
+		this.wallMounted = wallMounted;
 		if (variant == null || variant.isWallMounted() != wallMounted)
 			variant = model.defaultVariant(wallMounted);
 
@@ -84,7 +86,7 @@ public class ModelVariantContainer<T extends IModelVariant>
 
 	public int getGuiComponent(MalisisGui gui, UIContainer<?> container)
 	{
-		return model.getGuiComponent(gui, container, variant);
+		return model.getGuiComponent(gui, container, variant, wallMounted);
 	}
 
 	public void toNBT(AdvertTileEntity te, NBTTagCompound nbt)
@@ -137,8 +139,8 @@ public class ModelVariantContainer<T extends IModelVariant>
 		return new ModelVariantContainer<>(model, variant, variant != null ? variant.isWallMounted() : false);
 	}
 
-	public static ModelVariantContainer<?> getDefaultContainer()
+	public static ModelVariantContainer<?> getDefaultContainer(boolean wallMounted)
 	{
-		return new ModelVariantContainer<>(AdvertModel.getModel(null), null, false);
+		return new ModelVariantContainer<>(AdvertModel.getModel(null), null, wallMounted);
 	}
 }

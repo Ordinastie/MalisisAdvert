@@ -115,7 +115,7 @@ public class BillboardModel extends AdvertModel<IModelVariant>
 	}
 
 	@Override
-	public int getGuiComponent(MalisisGui gui, UIContainer<?> container, AdvertModel.IModelVariant variant)
+	public int getGuiComponent(MalisisGui gui, UIContainer<?> container, AdvertModel.IModelVariant variant, boolean wallMounted)
 	{
 		return 0;
 	}

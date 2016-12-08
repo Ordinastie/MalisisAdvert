@@ -138,6 +138,11 @@ public abstract class AdvertModel<T extends IModelVariant>
 		this.model = model;
 	}
 
+	public boolean canBeWallMounted()
+	{
+		return false;
+	}
+
 	//#end Getters/Setters
 
 	public void loadModelFile()
@@ -158,7 +163,7 @@ public abstract class AdvertModel<T extends IModelVariant>
 
 	public abstract AxisAlignedBB[] getBoundingBox(T variant);
 
-	public abstract int getGuiComponent(MalisisGui gui, UIContainer<?> container, T variant);
+	public abstract int getGuiComponent(MalisisGui gui, UIContainer<?> container, T variant, boolean wallMounted);
 
 	public abstract T getVariantFromGui(UIContainer<?> container);
 

@@ -50,7 +50,7 @@ public class AdvertTileEntity extends TileEntity
 
 	public AdvertTileEntity()
 	{
-		setModelContainer(null);
+		container = ModelVariantContainer.getDefaultContainer(false);
 	}
 
 	public ModelVariantContainer<?> getModelContainer()
@@ -61,13 +61,12 @@ public class AdvertTileEntity extends TileEntity
 	public void setModelContainer(ModelVariantContainer<?> container)
 	{
 		if (container == null)
-			container = ModelVariantContainer.getDefaultContainer();
+			container = ModelVariantContainer.getDefaultContainer(isWallMounted());
 		this.container = container;
 
 		this.selectedAdverts = Arrays.copyOf(selectedAdverts, container.getModel().getAvailableSlots());
 
 		TileEntityUtils.notifyUpdate(this);
-
 	}
 
 	public void setWallMounted(boolean wallMounted)

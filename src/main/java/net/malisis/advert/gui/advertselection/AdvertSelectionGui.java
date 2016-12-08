@@ -43,6 +43,7 @@ import net.malisis.core.client.gui.component.interaction.UIButton;
 import net.malisis.core.client.gui.component.interaction.UISelect;
 import net.malisis.core.util.TileEntityUtils;
 
+import com.google.common.base.Predicates;
 import com.google.common.eventbus.Subscribe;
 
 /**
@@ -80,6 +81,8 @@ public class AdvertSelectionGui extends MalisisGui
 		y += 12;
 
 		selModel = new UISelect<>(this, 150, AdvertModel.list()).setPosition(0, y);
+		if (tileEntity.isWallMounted())
+			selModel.setDisablePredicate(Predicates.not(AdvertModel::canBeWallMounted));
 		selModel.setLabelPattern("malisisadvert.gui.model.%s");
 		selModel.register(this);
 		y += 18;

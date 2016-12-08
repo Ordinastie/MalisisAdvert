@@ -163,6 +163,12 @@ public class AdvertBlock extends MalisisBlock implements ITileEntityProvider, IC
 	}
 
 	@Override
+	public boolean isFullCube(IBlockState state)
+	{
+		return false;
+	}
+
+	@Override
 	public int blockRange()
 	{
 		return 5;
