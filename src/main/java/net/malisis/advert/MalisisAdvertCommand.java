@@ -108,7 +108,7 @@ public class MalisisAdvertCommand extends CommandBase
 	@Override
 	public int getRequiredPermissionLevel()
 	{
-		return 0;//OP
+		return 2;//OP
 	}
 
 	@Override

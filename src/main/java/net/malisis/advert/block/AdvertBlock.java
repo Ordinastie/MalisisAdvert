@@ -26,6 +26,8 @@ package net.malisis.advert.block;
 
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
 import net.malisis.advert.MalisisAdvert;
 import net.malisis.advert.network.AdvertGuiMessage;
 import net.malisis.advert.renderer.AdvertRenderer;
@@ -56,8 +58,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
-import com.google.common.collect.Lists;
-
 /**
  * @author Ordinastie
  *
@@ -76,8 +76,10 @@ public class AdvertBlock extends MalisisBlock implements ITileEntityProvider, IC
 		setCreativeTab(MalisisAdvert.tab);
 		setTexture(MalisisAdvert.modid + ":blocks/MA");
 
-		addComponent(new DirectionalComponent(DirectionalComponent.ALL,
-				(state, side, placer) -> side == EnumFacing.UP ? EntityUtils.getEntityFacing(placer).getOpposite() : side));
+		addComponent(new DirectionalComponent(	DirectionalComponent.ALL,
+												(state, side, placer) -> side == EnumFacing.UP	? EntityUtils	.getEntityFacing(placer)
+																												.getOpposite()
+																								: side));
 	}
 
 	@Override
@@ -87,10 +89,17 @@ public class AdvertBlock extends MalisisBlock implements ITileEntityProvider, IC
 	}
 
 	@Override
-	public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer, ItemStack itemStack)
+	public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer, EnumHand hand)
 	{
-		return super.getStateForPlacement(world, pos, facing, hitX, hitY, hitZ, meta, placer, itemStack).withProperty(WALL,
-				facing != EnumFacing.UP);
+		return super.getStateForPlacement(	world,
+											pos,
+											facing,
+											hitX,
+											hitY,
+											hitZ,
+											meta,
+											placer,
+											hand).withProperty(WALL, facing != EnumFacing.UP);
 	}
 
 	@Override
@@ -105,7 +114,7 @@ public class AdvertBlock extends MalisisBlock implements ITileEntityProvider, IC
 	}
 
 	@Override
-	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
+	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
 	{
 		if (world.isRemote)
 			return true;

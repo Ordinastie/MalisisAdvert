@@ -25,7 +25,7 @@
 package net.malisis.advert;
 
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 
 /**
  * @author Ordinastie
@@ -39,9 +39,9 @@ public class MalisisAdvertTab extends CreativeTabs
 	}
 
 	@Override
-	public Item getTabIconItem()
+	public ItemStack getTabIconItem()
 	{
-		return Item.getItemFromBlock(MalisisAdvert.Blocks.advertBlock);
+		return new ItemStack(MalisisAdvert.Blocks.advertBlock);
 	}
 
 }

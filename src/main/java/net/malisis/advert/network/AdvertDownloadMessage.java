@@ -24,23 +24,23 @@
 
 package net.malisis.advert.network;
 
-import io.netty.buffer.ByteBuf;
-
 import java.io.IOException;
 
+import com.google.common.io.Files;
+
+import io.netty.buffer.ByteBuf;
 import net.malisis.advert.MalisisAdvert;
 import net.malisis.advert.advert.Advert;
 import net.malisis.advert.advert.ClientAdvert;
 import net.malisis.advert.advert.ServerAdvert;
 import net.malisis.core.network.IMalisisMessageHandler;
 import net.malisis.core.network.MalisisMessage;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
-
-import com.google.common.io.Files;
 
 /**
  * Message to tell the client to open a GUI.
@@ -73,7 +73,7 @@ public class AdvertDownloadMessage implements IMalisisMessageHandler<IMessage, I
 		if (advert == null)
 			return;
 
-		sendImageData(advert, ctx.getServerHandler().playerEntity);
+		sendImageData(advert, IMalisisMessageHandler.getPlayer(ctx));
 	}
 
 	private void processResponse(Response message, MessageContext ctx)
@@ -98,7 +98,7 @@ public class AdvertDownloadMessage implements IMalisisMessageHandler<IMessage, I
 		MalisisAdvert.network.sendToServer(packet);
 	}
 
-	public static void sendImageData(ServerAdvert advert, EntityPlayerMP player)
+	public static void sendImageData(ServerAdvert advert, EntityPlayer player)
 	{
 		if ((advert.getFile() == null || !advert.getFile().exists()) && advert.getError() == null)
 		{
@@ -107,7 +107,7 @@ public class AdvertDownloadMessage implements IMalisisMessageHandler<IMessage, I
 		}
 
 		Response packet = new Response(advert);
-		MalisisAdvert.network.sendTo(packet, player);
+		MalisisAdvert.network.sendTo(packet, (EntityPlayerMP) player);
 	}
 
 	public static class Response implements IMessage

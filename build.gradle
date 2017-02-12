@@ -42,8 +42,8 @@ dependencies
 
 
 minecraft {
-    version = "1.10.2-12.18.2.2151"
-    mappings = "stable_29"
+    version = "1.11.2-13.20.0.2226"
+    mappings = "snapshot_20170131"
     
 	if(file("../../run").exists()) 	{
 		runDir = "../../run/assets"
@@ -106,8 +106,6 @@ if (project.hasProperty('curseapi')) {
 
 			addArtifact deobfJar
 			addArtifact sourceJar
-
-			addGameVersion '1.9.4'
 
 			relations {
 				requiredLibrary 'malisiscore'

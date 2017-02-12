@@ -24,16 +24,16 @@
 
 package net.malisis.advert.network;
 
-import io.netty.buffer.ByteBuf;
-
 import java.util.Collection;
 
+import io.netty.buffer.ByteBuf;
 import net.malisis.advert.MalisisAdvert;
 import net.malisis.advert.advert.Advert;
 import net.malisis.advert.advert.ClientAdvert;
 import net.malisis.advert.advert.ServerAdvert;
 import net.malisis.core.network.IMalisisMessageHandler;
 import net.malisis.core.network.MalisisMessage;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
@@ -58,7 +58,7 @@ public class AdvertListMessage implements IMalisisMessageHandler<IMessage, IMess
 		if (message instanceof Query && ctx.side == Side.SERVER)
 		{
 			ServerAdvert.readListing();
-			sendList(ctx.getServerHandler().playerEntity);
+			sendList(IMalisisMessageHandler.getPlayer(ctx));
 		}
 
 		if (message instanceof Response && ctx.side == Side.CLIENT)
@@ -72,9 +72,9 @@ public class AdvertListMessage implements IMalisisMessageHandler<IMessage, IMess
 		MalisisAdvert.network.sendToServer(new Query());
 	}
 
-	public static void sendList(EntityPlayerMP player)
+	public static void sendList(EntityPlayer player)
 	{
-		MalisisAdvert.network.sendTo(new Response(ServerAdvert.listAdverts()), player);
+		MalisisAdvert.network.sendTo(new Response(ServerAdvert.listAdverts()), (EntityPlayerMP) player);
 	}
 
 	public static void sendAdvert(ServerAdvert advert)

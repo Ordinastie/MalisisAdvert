@@ -24,8 +24,6 @@
 
 package net.malisis.advert.advert;
 
-import io.netty.buffer.ByteBuf;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -40,12 +38,6 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.Executors;
 
-import net.malisis.advert.MalisisAdvert;
-import net.malisis.advert.network.AdvertDownloadMessage;
-import net.malisis.core.util.Silenced;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
-
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.io.Files;
@@ -53,6 +45,13 @@ import com.google.common.io.Resources;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
+
+import io.netty.buffer.ByteBuf;
+import net.malisis.advert.MalisisAdvert;
+import net.malisis.advert.network.AdvertDownloadMessage;
+import net.malisis.core.util.Silenced;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraftforge.fml.common.network.ByteBufUtils;
 
 /**
  * @author Ordinastie
@@ -63,7 +62,7 @@ public class ServerAdvert extends Advert
 	private static File packDir = new File("./" + advertDir);
 	private static ListeningExecutorService threadPool = MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor());
 	private static ListenableFuture<Void> task;
-	private static Set<EntityPlayerMP> listeners = new HashSet<>();
+	private static Set<EntityPlayer> listeners = new HashSet<>();
 
 	private static SortedMap<Integer, ServerAdvert> adverts = new TreeMap<>();
 
@@ -119,7 +118,7 @@ public class ServerAdvert extends Advert
 
 	}
 
-	public void downloadAdvert(EntityPlayerMP player)
+	public void downloadAdvert(EntityPlayer player)
 	{
 		listeners.add(player);
 		downloadFile();
@@ -169,7 +168,7 @@ public class ServerAdvert extends Advert
 
 	private void sendImageData()
 	{
-		for (EntityPlayerMP player : listeners)
+		for (EntityPlayer player : listeners)
 			AdvertDownloadMessage.sendImageData(ServerAdvert.this, player);
 		listeners.clear();
 	}
