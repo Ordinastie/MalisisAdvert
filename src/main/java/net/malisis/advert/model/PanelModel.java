@@ -24,10 +24,9 @@
 
 package net.malisis.advert.model;
 
-import io.netty.buffer.ByteBuf;
-
 import java.util.Arrays;
 
+import io.netty.buffer.ByteBuf;
 import net.malisis.advert.MalisisAdvert;
 import net.malisis.advert.advert.AdvertSelection;
 import net.malisis.advert.model.PanelModel.Variant;
@@ -265,12 +264,12 @@ public class PanelModel extends AdvertModel<Variant>
 		private double y, Y;
 		private float v, V;
 		private Shape shape;
-		private Icon icon = new Icon();
+		private Icon icon;
 
 		public void set(Shape shape, AdvertSelection as)
 		{
 			this.shape = shape;
-			Icon icon = as != null ? (Icon) as.getIcon() : null;
+			Icon icon = as != null ? as.getIcon() : null;
 			if (icon == null)
 				icon = baseIcon;
 			this.icon.copyFrom(icon);
