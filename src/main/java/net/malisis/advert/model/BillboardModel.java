@@ -129,7 +129,6 @@ public class BillboardModel extends AdvertModel<IModelVariant>
 	@Override
 	public void renderBlock(AdvertRenderer renderer, AdvertTileEntity tileEntity, RenderParameters rp, AdvertModel.IModelVariant variant)
 	{
-		loadModelFile();
 		rp.icon.set(boardIcon);
 		renderer.drawShape(foot, rp);
 		renderer.drawShape(billboard, rp);
