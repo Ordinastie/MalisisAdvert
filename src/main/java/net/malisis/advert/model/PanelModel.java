@@ -272,7 +272,7 @@ public class PanelModel extends AdvertModel<Variant>
 			Icon icon = as != null ? as.getIcon() : null;
 			if (icon == null)
 				icon = baseIcon;
-			this.icon.copyFrom(icon);
+			this.icon = icon.copy();
 
 			Face f = shape.getFaces()[0];
 			y = f.getVertexes()[0].getY();

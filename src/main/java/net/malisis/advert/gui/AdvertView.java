@@ -26,6 +26,9 @@ package net.malisis.advert.gui;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+import org.lwjgl.opengl.GL11;
+
 import net.malisis.advert.advert.AdvertSelection;
 import net.malisis.advert.advert.ClientAdvert;
 import net.malisis.advert.gui.advertselection.AdvertSelectionComponent;
@@ -39,9 +42,6 @@ import net.malisis.core.renderer.font.FontOptions;
 import net.malisis.core.renderer.font.MalisisFont;
 import net.malisis.core.util.MouseButton;
 import net.minecraft.client.gui.GuiScreen;
-
-import org.apache.commons.lang3.StringUtils;
-import org.lwjgl.opengl.GL11;
 
 /**
  * @author Ordinastie
@@ -250,7 +250,7 @@ public class AdvertView extends UIComponent<AdvertView>
 			if (text != null)
 			{
 				int y = 0;
-				List<String> err = font.wrapText(text, getWidth());
+				List<String> err = font.wrapText(text, getWidth(), fontOptions);
 				for (String e : err)
 					renderer.drawText(null, e, 0, 11 * y++, 0, fontOptions);
 			}
