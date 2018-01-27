@@ -30,7 +30,7 @@ import net.malisis.advert.gui.advertselection.AdvertSelectionGui;
 import net.malisis.advert.gui.manager.AdvertManagerGui;
 import net.malisis.advert.tileentity.AdvertTileEntity;
 import net.malisis.core.network.IMalisisMessageHandler;
-import net.malisis.core.network.MalisisMessage;
+import net.malisis.core.registry.AutoLoad;
 import net.malisis.core.util.TileEntityUtils;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.math.BlockPos;
@@ -42,7 +42,7 @@ import net.minecraftforge.fml.relauncher.Side;
  * @author Ordinastie
  *
  */
-@MalisisMessage
+@AutoLoad(true)
 public class AdvertGuiMessage implements IMalisisMessageHandler<AdvertGuiMessage.Packet, IMessage>
 {
 	public static int ADVERTMANAGER = 1;
@@ -61,8 +61,8 @@ public class AdvertGuiMessage implements IMalisisMessageHandler<AdvertGuiMessage
 		if (message.type == ADVERTSELECTION)
 		{
 			AdvertTileEntity tileEntity = TileEntityUtils.getTileEntity(AdvertTileEntity.class,
-					IMalisisMessageHandler.getWorld(ctx),
-					message.pos);
+																		IMalisisMessageHandler.getWorld(ctx),
+																		message.pos);
 			if (tileEntity != null)
 				new AdvertSelectionGui(tileEntity).display();
 		}

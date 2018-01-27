@@ -31,7 +31,7 @@ import net.malisis.advert.advert.ClientAdvert;
 import net.malisis.advert.advert.ServerAdvert;
 import net.malisis.advert.network.AdvertDeleteMessage.DeletePacket;
 import net.malisis.core.network.IMalisisMessageHandler;
-import net.malisis.core.network.MalisisMessage;
+import net.malisis.core.registry.AutoLoad;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
@@ -40,7 +40,7 @@ import net.minecraftforge.fml.relauncher.Side;
  * @author Ordinastie
  *
  */
-@MalisisMessage
+@AutoLoad(true)
 public class AdvertDeleteMessage implements IMalisisMessageHandler<DeletePacket, IMessage>
 {
 	public AdvertDeleteMessage()

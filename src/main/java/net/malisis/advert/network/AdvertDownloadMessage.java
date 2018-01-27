@@ -34,7 +34,7 @@ import net.malisis.advert.advert.Advert;
 import net.malisis.advert.advert.ClientAdvert;
 import net.malisis.advert.advert.ServerAdvert;
 import net.malisis.core.network.IMalisisMessageHandler;
-import net.malisis.core.network.MalisisMessage;
+import net.malisis.core.registry.AutoLoad;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
@@ -48,7 +48,7 @@ import net.minecraftforge.fml.relauncher.Side;
  * @author Ordinastie
  *
  */
-@MalisisMessage
+@AutoLoad(true)
 public class AdvertDownloadMessage implements IMalisisMessageHandler<IMessage, IMessage>
 {
 	public AdvertDownloadMessage()

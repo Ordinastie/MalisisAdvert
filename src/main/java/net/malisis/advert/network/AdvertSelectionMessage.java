@@ -31,7 +31,7 @@ import net.malisis.advert.model.AdvertModel.IModelVariant;
 import net.malisis.advert.model.ModelVariantContainer;
 import net.malisis.advert.tileentity.AdvertTileEntity;
 import net.malisis.core.network.IMalisisMessageHandler;
-import net.malisis.core.network.MalisisMessage;
+import net.malisis.core.registry.AutoLoad;
 import net.malisis.core.util.TileEntityUtils;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -43,7 +43,7 @@ import net.minecraftforge.fml.relauncher.Side;
  * @author Ordinastie
  *
  */
-@MalisisMessage
+@AutoLoad(true)
 public class AdvertSelectionMessage implements IMalisisMessageHandler<AdvertSelectionMessage.Packet<? extends IModelVariant>, IMessage>
 {
 	public AdvertSelectionMessage()

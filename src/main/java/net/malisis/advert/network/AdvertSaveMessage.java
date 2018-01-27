@@ -30,7 +30,7 @@ import net.malisis.advert.advert.Advert;
 import net.malisis.advert.advert.ServerAdvert;
 import net.malisis.advert.network.AdvertSaveMessage.SavePacket;
 import net.malisis.core.network.IMalisisMessageHandler;
-import net.malisis.core.network.MalisisMessage;
+import net.malisis.core.registry.AutoLoad;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
@@ -40,7 +40,7 @@ import net.minecraftforge.fml.relauncher.Side;
  * @author Ordinastie
  *
  */
-@MalisisMessage
+@AutoLoad(true)
 public class AdvertSaveMessage implements IMalisisMessageHandler<SavePacket, IMessage>
 {
 	public AdvertSaveMessage()
