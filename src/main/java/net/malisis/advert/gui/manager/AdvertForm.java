@@ -72,13 +72,13 @@ public class AdvertForm extends UIContainer<AdvertForm>
 
 		int y = 10;
 
-		UIButton btnSave = new UIButton(gui, imgSave).setPosition(0, y, Anchor.RIGHT).setSize(16, 16).register(gui);
-		btnSave.setName("advertSave");
+		UIButton btnSave = new UIButton(gui, imgSave).setPosition(0, y, Anchor.RIGHT).setSize(16, 16);
 		btnSave.setTooltip("malisisadvert.gui.save");
+		btnSave.onClick(((AdvertManagerGui) gui)::saveAdvert);
 
-		UIButton btnDelete = new UIButton(gui, imgDelete).setPosition(0, y + 17, Anchor.RIGHT).setSize(16, 16).register(gui);
-		btnDelete.setName("advertDelete");
+		UIButton btnDelete = new UIButton(gui, imgDelete).setPosition(0, y + 17, Anchor.RIGHT).setSize(16, 16);
 		btnDelete.setTooltip("malisisadvert.gui.delete");
+		btnDelete.onClick(((AdvertManagerGui) gui)::deleteAdvert);
 
 		add(btnSave, btnDelete);
 	}

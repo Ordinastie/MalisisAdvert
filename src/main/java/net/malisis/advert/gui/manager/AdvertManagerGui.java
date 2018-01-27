@@ -24,6 +24,8 @@
 
 package net.malisis.advert.gui.manager;
 
+import org.apache.commons.lang3.StringUtils;
+
 import net.malisis.advert.MalisisAdvert;
 import net.malisis.advert.advert.ClientAdvert;
 import net.malisis.advert.gui.AdvertView;
@@ -44,10 +46,6 @@ import net.malisis.core.client.gui.component.interaction.UITab;
 import net.malisis.core.renderer.icon.GuiIcon;
 import net.minecraft.util.ResourceLocation;
 
-import org.apache.commons.lang3.StringUtils;
-
-import com.google.common.eventbus.Subscribe;
-
 /**
  * @author Ordinastie
  *
@@ -63,7 +61,7 @@ public class AdvertManagerGui extends MalisisGui
 
 	public static ClientAdvert advert;
 
-	private AdvertList advertList;
+	private UIListContainer<ClientAdvert> advertList;
 	private UITabGroup tabs;
 	private UIPanel formCont;
 	private AdvertForm advertForm;
@@ -83,25 +81,29 @@ public class AdvertManagerGui extends MalisisGui
 		UIImage imgRefresh = new UIImage(this, icons, refreshIcon).setSize(10, 10);
 		UIImage imgAdd = new UIImage(this, icons, addIcon).setSize(10, 10);
 
-		UIButton btnAdd = new UIButton(this, imgAdd).setPosition(0, 0, Anchor.RIGHT).setSize(16, 16).register(this);
-		btnAdd.setName("advertAdd");
+		UIButton btnAdd = new UIButton(this, imgAdd).setPosition(0, 0, Anchor.RIGHT).setSize(16, 16);
 		btnAdd.setTooltip("malisisadvert.gui.add");
+		btnAdd.onClick(() -> {
+			showForm(true);
+			selectAdvert(null);
+		});
 
 		UIButton btnRefresh = new UIButton(this, imgRefresh).setPosition(-17, 0, Anchor.RIGHT).setSize(16, 16).register(this);
-		btnRefresh.setName("listRefresh");
 		btnRefresh.setTooltip("malisisadvert.gui.refresh");
+		btnRefresh.onClick(ClientAdvert::queryAdvertList);
 
 		//advert list
-		advertList = new AdvertList(this, 0, height - 60).register(this);
+		advertList = new UIListContainer<>(this, 0, height - 60);
 		advertList.setPosition(0, 20);
 		advertList.setElementSpacing(1);
+		advertList.setComponentFactory(AdvertComponent::new);
 		advertList.setElements(ClientAdvert.listAdverts());
 
 		createForm();
 
 		//close button
-		UIButton btnClose = new UIButton(this, "malisisadvert.gui.close").setPosition(0, 0, Anchor.BOTTOM | Anchor.CENTER).register(this);
-		btnClose.setName("close");
+		UIButton btnClose = new UIButton(this, "malisisadvert.gui.close").setPosition(0, 0, Anchor.BOTTOM | Anchor.CENTER);
+		btnClose.onClick(this::close);
 
 		UIWindow window = new UIWindow(this, "malisisadvert.gui.advertmanager", width, 250);
 
@@ -142,55 +144,35 @@ public class AdvertManagerGui extends MalisisGui
 		formCont.add(advertForm, advertViewCont);
 	}
 
-	@Subscribe
-	public void onButtonClick(UIButton.ClickEvent event)
+	public void saveAdvert()
 	{
-		if (event.isFrom("advertAdd"))
-		{
-			showForm(true);
-			selectAdvert(null);
-		}
-		else if (event.isFrom("advertSave"))
-		{
-			String name = advertForm.getName();
-			String url = advertForm.getUrl();
-			if (StringUtils.isEmpty(name) || StringUtils.isEmpty(url))
-				return;
+		String name = advertForm.getName();
+		String url = advertForm.getUrl();
+		if (StringUtils.isEmpty(name) || StringUtils.isEmpty(url))
+			return;
 
-			if (advert == null)
-				advert = new ClientAdvert(0);
+		if (advert == null)
+			advert = new ClientAdvert(0);
 
-			advert.setInfos(name, url);
+		advert.setInfos(name, url);
 
-			AdvertSaveMessage.save(advert);
+		AdvertSaveMessage.save(advert);
 
-			if (advert.getId() != 0)
-				selectAdvert(advert);
-			else
-				showForm(false);
-
-		}
-		else if (event.isFrom("advertDelete"))
-		{
-			if (advert != null)
-				AdvertDeleteMessage.queryDelete(advert);
+		if (advert.getId() != 0)
+			selectAdvert(advert);
+		else
 			showForm(false);
-			selectAdvert(null);
-		}
-		else if (event.isFrom("listRefresh"))
-			ClientAdvert.queryAdvertList();
-		if (event.isFrom("close"))
-			close();
 	}
 
-	@Subscribe
-	public void onAdvertSelect(UIListContainer.SelectEvent<AdvertList, ClientAdvert> event)
+	public void deleteAdvert()
 	{
-		showForm(event.getSelected() != null);
-		selectAdvert(event.getSelected());
+		if (advert != null)
+			AdvertDeleteMessage.queryDelete(advert);
+		showForm(false);
+		selectAdvert(null);
 	}
 
-	private void showForm(boolean show)
+	public void showForm(boolean show)
 	{
 		formCont.setVisible(show);
 		tabs.setVisible(show);

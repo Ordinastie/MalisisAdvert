@@ -24,53 +24,88 @@
 
 package net.malisis.advert.gui.manager;
 
+import org.apache.commons.io.FileUtils;
+
 import net.malisis.advert.advert.ClientAdvert;
 import net.malisis.core.client.gui.GuiRenderer;
 import net.malisis.core.client.gui.MalisisGui;
-import net.malisis.core.client.gui.component.container.UIListContainer;
+import net.malisis.core.client.gui.component.container.UIBackgroundContainer;
 import net.malisis.core.client.gui.component.decoration.UILabel;
 import net.malisis.core.renderer.font.FontOptions;
-import net.malisis.core.renderer.font.MalisisFont;
 import net.minecraft.util.text.TextFormatting;
-
-import org.apache.commons.io.FileUtils;
-import org.lwjgl.opengl.GL11;
 
 /**
  * @author Ordinastie
  *
  */
-public class AdvertList extends UIListContainer<AdvertList, ClientAdvert>
+public class AdvertComponent extends UIBackgroundContainer
 {
-	private MalisisFont font = MalisisFont.minecraftFont;
+	private ClientAdvert advert;
 	private FontOptions nameOptions = FontOptions.builder().color(0xFFFFFF).shadow().build();
 	private FontOptions nameHoverOptions = FontOptions.builder().color(0xFFFF99).shadow().build();
 
 	private FontOptions fontOptions = FontOptions.builder().scale(2F / 3F).color(0x444444).build();
-	private FontOptions hoverFontOptions = FontOptions.builder().scale(2F / 3F).color(0x666666).build();
+	private FontOptions hoverFontOptions = FontOptions.builder().scale(2F / 3F).color(0x888866).build();
 
 	private UILabel emptyLabel;
+	private UILabel name;
+	private UILabel dimensions;
+	private UILabel fileSize;
+	private UILabel url;
 
-	public AdvertList(MalisisGui gui)
+	public AdvertComponent(MalisisGui gui, ClientAdvert advert)
 	{
 		super(gui);
+		setSize(INHERITED, 20);
+
+		this.advert = advert;
 		emptyLabel = new UILabel(gui);
 		emptyLabel.setParent(this);
+
+		int x = 3;
+		name = new UILabel(gui, advert.getName());
+		name.setPosition(x, 3);
+		add(name);
+
+		x += Math.max(70, name.getWidth() + 3);
+		dimensions = new UILabel(gui, advert.getWidth() + "x" + advert.getHeight());
+		dimensions.setPosition(x, 6);
+		add(dimensions);
+
+		x += dimensions.getWidth() + 3;
+		String size = FileUtils.byteCountToDisplaySize(advert.getSize());
+		fileSize = new UILabel(gui, "(" + size + ")");
+		fileSize.setPosition(x, 6);
+		add(fileSize);
+
+		url = new UILabel(gui, advert.getUrl());
+		url.setPosition(3, 14);
+		add(url);
 	}
 
-	public AdvertList(MalisisGui gui, int width, int height)
+	private void updateColor()
 	{
-		this(gui);
-		setSize(width, height);
+		if (advert == AdvertManagerGui.advert)
+		{
+			setColor(0xBBBBEE);
+			setBorder(0x333333, 1, 255);
+		}
+		else
+		{
+			setColor(0xC6C6C6);
+			setBorder(0xC6C6C6, 1, 255);
+		}
 	}
 
-	@Override
-	public int getElementHeight(ClientAdvert element)
+	private void updateLabels()
 	{
-		return 20;
+		name.setFontOptions(isHovered() ? nameHoverOptions : nameOptions);
+		FontOptions options = isHovered() ? hoverFontOptions : fontOptions;
+		dimensions.setFontOptions(options);
+		fileSize.setFontOptions(options);
+		url.setFontOptions(options);
 	}
 
-	@Override
 	public void drawEmpty(GuiRenderer renderer, int mouseX, int mouseY, float partialTick)
 	{
 		emptyLabel.setText(TextFormatting.ITALIC + (ClientAdvert.isPending() ? "malisisadvert.gui.querylist" : "malisisadvert.gui.noad"));
@@ -78,56 +113,27 @@ public class AdvertList extends UIListContainer<AdvertList, ClientAdvert>
 	}
 
 	@Override
-	public void drawElementBackground(GuiRenderer renderer, int mouseX, int mouseY, float partialTick, ClientAdvert advert, boolean isHovered)
+	public void draw(GuiRenderer renderer, int mouseX, int mouseY, float partialTick)
 	{
-		if (!isSelected(advert))
-			return;
-
-		renderer.disableTextures();
-
-		int color = /*selected ? 0xBBBBFF :*/0xBBBBEE;
-		rp.colorMultiplier.set(color);
-
-		shape.resetState();
-		shape.setSize(getContentWidth(), getElementHeight(advert));
-		shape.translate(1, 1);
-		renderer.drawShape(shape, rp);
-
-		renderer.next(GL11.GL_LINE_LOOP);
-		GL11.glLineWidth(2);
-
-		shape.resetState();
-		shape.setSize(getContentWidth(), getElementHeight(advert));
-		shape.translate(1, 1);
-		rp.colorMultiplier.set(0x000000);
-		renderer.drawShape(shape, rp);
-
-		renderer.next(GL11.GL_QUADS);
-		renderer.enableTextures();
+		updateColor();
+		updateLabels();
+		super.draw(renderer, mouseX, mouseY, partialTick);
 	}
 
 	@Override
-	public void drawElementForeground(GuiRenderer renderer, int mouseX, int mouseY, float partialTick, ClientAdvert advert, boolean isHovered)
+	public void drawForeground(GuiRenderer renderer, int mouseX, int mouseY, float partialTick)
 	{
-		//Name
-		int x = 3;
-		renderer.drawText(font, advert.getName(), x, 3, 0, isHovered ? nameHoverOptions : nameOptions);
-		x += font.getStringWidth(advert.getName(), nameOptions) + 6;
 
-		FontOptions options = isHovered ? hoverFontOptions : this.fontOptions;
-		//Image Dimensions
-		x = Math.max(70, x);
-		String dim = advert.getWidth() + "x" + advert.getHeight();
-		renderer.drawText(font, dim, x, 6, 0, options);
-		x += font.getStringWidth(dim, options) + 3;
-
-		//File size
-		String size = FileUtils.byteCountToDisplaySize(advert.getSize());
-		renderer.drawText(font, "(" + size + ")", x, 6, 0, options);
-
-		//URL
-		String url = font.clipString(advert.getUrl(), getWidth() - 6, options, true);
-		renderer.drawText(font, url, 3, 14, 0, options);
+		super.drawForeground(renderer, mouseX, mouseY, partialTick);
 	}
 
+	@Override
+	public boolean onClick(int x, int y)
+	{
+		//return super.onClick(x, y);
+		AdvertManagerGui gui = ((AdvertManagerGui) getGui());
+		gui.showForm(true);
+		gui.selectAdvert(advert);
+		return true;
+	}
 }
