@@ -42,8 +42,8 @@ dependencies
 
 
 minecraft {
-    version = "1.12-14.21.1.2428"
-    mappings = "snapshot_20170730"
+    version = "1.12.2-14.23.1.2589"
+    mappings = "snapshot_20180114"
     
 	if(file("../../run").exists()) 	{
 		runDir = "../../run/assets"
