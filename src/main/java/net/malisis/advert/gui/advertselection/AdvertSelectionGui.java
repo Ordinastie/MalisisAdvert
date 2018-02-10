@@ -26,6 +26,9 @@ package net.malisis.advert.gui.advertselection;
 
 import java.util.Arrays;
 
+import com.google.common.base.Predicates;
+import com.google.common.eventbus.Subscribe;
+
 import net.malisis.advert.advert.AdvertSelection;
 import net.malisis.advert.gui.AdvertView;
 import net.malisis.advert.model.AdvertModel;
@@ -35,16 +38,13 @@ import net.malisis.advert.tileentity.AdvertTileEntity;
 import net.malisis.core.client.gui.Anchor;
 import net.malisis.core.client.gui.MalisisGui;
 import net.malisis.core.client.gui.component.container.UIContainer;
-import net.malisis.core.client.gui.component.container.UIPanel;
-import net.malisis.core.client.gui.component.container.UIWindow;
 import net.malisis.core.client.gui.component.decoration.UILabel;
 import net.malisis.core.client.gui.component.decoration.UISeparator;
 import net.malisis.core.client.gui.component.interaction.UIButton;
 import net.malisis.core.client.gui.component.interaction.UISelect;
+import net.malisis.core.client.gui.render.BackgroundTexture.PanelBackground;
+import net.malisis.core.client.gui.render.BackgroundTexture.WindowBackground;
 import net.malisis.core.util.TileEntityUtils;
-
-import com.google.common.base.Predicates;
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author Ordinastie
@@ -107,11 +107,12 @@ public class AdvertSelectionGui extends MalisisGui
 		//RIGHT CONTAINER
 		adview = new AdvertView(this, true).register(this);
 
-		UIPanel right = new UIPanel(this, width / 2 - 15, height - 55).setPosition(-5, 15, Anchor.RIGHT);
+		UIContainer<?> right = new UIContainer<>(this, width / 2 - 15, height - 55).setPosition(-5, 15, Anchor.RIGHT);
+		right.setBackground(new PanelBackground(this));
 		right.add(adview);
 
 		//SAVE/CLOSE
-		btnSave = new UIButton(this, "malisisadvert.gui.save").setPosition(-32, 0, Anchor.BOTTOM | Anchor.CENTER)
+		btnSave = new UIButton(this, "malisisadvert.gui.save")	.setPosition(-32, 0, Anchor.BOTTOM | Anchor.CENTER)
 																.setSize(60)
 																.register(this);
 		btnClose = new UIButton(this, "malisisadvert.gui.close").setPosition(32, 0, Anchor.BOTTOM | Anchor.CENTER)
@@ -119,7 +120,8 @@ public class AdvertSelectionGui extends MalisisGui
 																.register(this);
 
 		//WINDOW
-		UIWindow window = new UIWindow(this, "malisisadvert.gui.advertselection", width, height);
+		UIContainer<?> window = new UIContainer<>(this, "malisisadvert.gui.advertselection", width, height);
+		window.setBackground(new WindowBackground(this));
 
 		window.add(left, right, btnSave, btnClose);
 

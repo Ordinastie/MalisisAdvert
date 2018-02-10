@@ -29,8 +29,9 @@ import org.apache.commons.io.FileUtils;
 import net.malisis.advert.advert.ClientAdvert;
 import net.malisis.core.client.gui.GuiRenderer;
 import net.malisis.core.client.gui.MalisisGui;
-import net.malisis.core.client.gui.component.container.UIBackgroundContainer;
+import net.malisis.core.client.gui.component.container.UIContainer;
 import net.malisis.core.client.gui.component.decoration.UILabel;
+import net.malisis.core.client.gui.render.ColoredBackground;
 import net.malisis.core.renderer.font.FontOptions;
 import net.minecraft.util.text.TextFormatting;
 
@@ -38,7 +39,7 @@ import net.minecraft.util.text.TextFormatting;
  * @author Ordinastie
  *
  */
-public class AdvertComponent extends UIBackgroundContainer
+public class AdvertComponent extends UIContainer<AdvertComponent>
 {
 	private ClientAdvert advert;
 	private FontOptions nameOptions = FontOptions.builder().color(0xFFFFFF).shadow().build();
@@ -81,19 +82,22 @@ public class AdvertComponent extends UIBackgroundContainer
 		url = new UILabel(gui, advert.getUrl());
 		url.setPosition(3, 14);
 		add(url);
+
+		setBackground(new ColoredBackground(0, 0, 0));
 	}
 
 	private void updateColor()
 	{
+		ColoredBackground bg = (ColoredBackground) backgroundRenderer;
 		if (advert == AdvertManagerGui.advert)
 		{
-			setColor(0xBBBBEE);
-			setBorder(0x333333, 1, 255);
+			bg.setColor(0xBBBBEE);
+			bg.setBorder(0x333333, 1, 255);
 		}
 		else
 		{
-			setColor(0xC6C6C6);
-			setBorder(0xC6C6C6, 1, 255);
+			bg.setColor(0xC6C6C6);
+			bg.setBorder(0xC6C6C6, 1, 255);
 		}
 	}
 

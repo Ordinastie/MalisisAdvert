@@ -37,12 +37,12 @@ import net.malisis.core.client.gui.GuiTexture;
 import net.malisis.core.client.gui.MalisisGui;
 import net.malisis.core.client.gui.component.container.UIContainer;
 import net.malisis.core.client.gui.component.container.UIListContainer;
-import net.malisis.core.client.gui.component.container.UIPanel;
 import net.malisis.core.client.gui.component.container.UITabGroup;
-import net.malisis.core.client.gui.component.container.UIWindow;
 import net.malisis.core.client.gui.component.decoration.UIImage;
 import net.malisis.core.client.gui.component.interaction.UIButton;
 import net.malisis.core.client.gui.component.interaction.UITab;
+import net.malisis.core.client.gui.render.BackgroundTexture.PanelBackground;
+import net.malisis.core.client.gui.render.BackgroundTexture.WindowBackground;
 import net.malisis.core.renderer.icon.GuiIcon;
 import net.minecraft.util.ResourceLocation;
 
@@ -63,7 +63,7 @@ public class AdvertManagerGui extends MalisisGui
 
 	private UIListContainer<ClientAdvert> advertList;
 	private UITabGroup tabs;
-	private UIPanel formCont;
+	private UIContainer<?> formCont;
 	private AdvertForm advertForm;
 	private AdvertView advertView;
 	private UIContainer<?> advertViewCont;
@@ -105,7 +105,8 @@ public class AdvertManagerGui extends MalisisGui
 		UIButton btnClose = new UIButton(this, "malisisadvert.gui.close").setPosition(0, 0, Anchor.BOTTOM | Anchor.CENTER);
 		btnClose.onClick(this::close);
 
-		UIWindow window = new UIWindow(this, "malisisadvert.gui.advertmanager", width, 250);
+		UIContainer<?> window = new UIContainer<>(this, "malisisadvert.gui.advertmanager", width, 250);
+		window.setBackground(new WindowBackground(this));
 
 		//tabs
 		UIImage imgEdit = new UIImage(this, AdvertManagerGui.icons, editIcon).setSize(10, 10);
@@ -135,7 +136,8 @@ public class AdvertManagerGui extends MalisisGui
 		advertViewCont.add(advertView);
 
 		//container holding form, view and tabs
-		formCont = new UIPanel(this);
+		formCont = new UIContainer<>(this);
+		formCont.setBackground(new PanelBackground(this));
 		formCont.setSize(width / 2 - 8, height - 60).setPosition(0, 20, Anchor.RIGHT);
 		formCont.setVisible(false);
 
